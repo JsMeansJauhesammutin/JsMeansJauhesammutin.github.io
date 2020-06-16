@@ -1,0 +1,78 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> Kateva pohja </title>
+<body>
+<canvas id="canvasId" width="500" height="500" onclick="main()"></canvas>
+<script text="text/javascript">
+ran=false;
+function main(){
+if(ran){return;}
+ran=true;
+ctxAudio=new AudioContext();
+var CanvasElement=document.getElementById("canvasId");
+if(CanvasElement.getContext){
+	var ctx = CanvasElement.getContext("2d");
+}
+ctx.fillStyle="black"
+var isMouseDown=false;
+var a
+var h
+var ctxAudio
+var asap=16;
+var noteVolumes=new Array(asap);
+var gainNodes=new Array(asap);
+for(i=0;i<asap;i++){
+	noteVolumes[i]=1/((i+1)*(i+1));
+}
+for(i=0;i<asap;i++){
+	a = ctxAudio.createOscillator()
+	a.frequency.value=(i+1)*261;
+	h = ctxAudio.createGain()
+	a.connect(h)
+	h.connect(ctxAudio.destination)
+	a.start(0);
+	h.gain.exponentialRampToValueAtTime(noteVolumes[i], ctxAudio.currentTime+0.001);
+	gainNodes[i]=h;
+}
+document.addEventListener("mousemove",move)
+document.addEventListener("mousedown",down)
+document.addEventListener("mouseup",up)
+function move(e){
+	if(isMouseDown){
+		x=e.x-6;
+		y=e.y-6;
+		if(y>499.99){y=499.99;}
+		if(x>-1&x<500){
+			noteVolumes[(x-x%(500/asap))/(500/asap)]=(500-y)/500;
+			gainNodes[(x-x%(500/asap))/(500/asap)].gain.exponentialRampToValueAtTime(noteVolumes[(x-x%(500/asap))/(500/asap)], ctxAudio.currentTime+0.001);
+		}
+		draw();
+	}
+}
+function down(e){
+	isMouseDown=true;
+	x=e.x-6;
+	y=e.y-6;
+	if(y>499.99){y=499.99;}
+	if(x>-1&x<500){
+		noteVolumes[(x-x%(500/asap))/(500/asap)]=(500-y)/500;
+		gainNodes[(x-x%(500/asap))/(500/asap)].gain.exponentialRampToValueAtTime(noteVolumes[(x-x%(500/asap))/(500/asap)], ctxAudio.currentTime+0.001);
+	}
+	draw();
+}
+function up(){
+	isMouseDown=false;
+}
+function draw(){
+	ctx.clearRect(0,0,500,500);
+	for(i=0;i<asap;i++){
+		ctx.fillRect(i*500/asap,500,500/asap,-noteVolumes[i]*500)
+	}
+}
+draw();
+}
+</script>
+</body>
+</head>
