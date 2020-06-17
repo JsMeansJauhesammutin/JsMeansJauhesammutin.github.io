@@ -1,0 +1,395 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> Kateva pohja </title>
+<body>
+<canvas id="CanvasId" width="900" height="900"></canvas>
+<input type="button" id="but0" value="pelaaja vs. pelaaja" onmousedown="keypress(48)">
+<input type="button" id="but1" value="pelaaja vs. botti" onmousedown="keypress(49)">
+<input type="button" id="but2" value="botti vs. pelaaja" onmousedown="keypress(50)">
+<input type="button" id="but3" value="botti vs. botti" onmousedown="keypress(51)">
+<h1 id="turn">Valitse pelitilasi</h1>
+<script text="text/javascript">
+var CanvasElement=document.getElementById("CanvasId");
+if(CanvasElement.getContext){
+	var ctx = CanvasElement.getContext("2d");
+}
+var asap=9;
+var begin=false;
+var pix=100;
+var lx=0;
+var limit=400;
+var vuoromaara=0;
+var ly=0;
+var win=false;
+var bot=new Array(true,true);
+var winner=0;
+var alue=new Array(asap);
+var turn=false;
+var reason="";
+var teksti="850000012850000012850000012750000013750000013750000013650000014650000014650000014";
+var num="012345678"
+var vuoro=0;
+var opshulen=288;
+var opshuns= new Array(opshulen);
+for(i=0;i<opshulen;i++){
+	opshuns[i]=new Array(0,0,0,0,0);
+}
+// lähto x lähtö y saapumis x saapumis y luokka oikeako
+// luokat : 0 ei mitään erityistä luokka 1 syö
+var col=new Array("grey","black","red","blue","darkorange","white","pink","lightblue","yellow");
+for(i=0;i<asap;i++){
+	alue[i]=new Array(asap)
+	for(j=0;j<asap;j++){
+		alue[i][j]=num.indexOf(teksti.charAt(i*asap+j))-1
+		//alue[i][j]=Math.floor(Math.random()*8)
+	}
+}
+var placo=new Array("valkoinen","musta")
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function piirra(){
+	if(win&false){
+		ctx.clearRect(0,0,500,500);
+		return;
+	}
+	ctx.fillStyle="brown";
+	ctx.fillRect(0,0,asap*pix,asap*pix);
+	for(i=0;i<asap;i++){
+		for(j=0;j<asap;j++){
+			ctx.fillStyle=col[alue[i][j]+1];
+			ctx.fillRect(i*pix,j*pix,pix-1,pix-1);
+		}
+	}
+}
+function safloo(a,b){
+	if(a<0||b<0||a>asap-1||b>asap-1){return -2;}
+	return alue[a][b];
+}
+function lol(a,b){
+	if(safloo(a,b)==2||safloo(a,b)==3){return true;}
+	return false;
+}
+function neig(a,b,c){
+	return bol(safloo(a-1,b)==c)+bol(safloo(a+1,b)==c)+bol(safloo(a,b-1)==c)+bol(safloo(a,b+1)==c);
+}
+function vieri(a,b,c){
+	if(safloo(a-1,b)%4==c||safloo(a+1,b)%4==c||safloo(a,b-1)%4==c||safloo(a,b+1)%4==c){
+		return true;
+	}
+	return false;
+}
+function drawmoves(a,b){
+	ctx.fillStyle="green"
+	for(i=0;i<asap;i++){
+		for(j=0;j<asap;j++){
+			if(legal(a,b,i,j)){
+				ctx.fillRect(i*pix+7,j*pix+7,pix-15,pix-15);
+			}
+		}
+	}
+}
+function legal(a,b,c,d){
+	var e=alue[a][b]
+	if(e%4==1||(vieri(a,b,1)&e%4==0)){
+		if((Math.abs(a-c)==1&Math.abs(b-d)==0)||(Math.abs(a-c)==0&Math.abs(b-d)==1)){
+			if(alue[c][d]==-1){
+				return true;
+			}
+			if(Math.floor(alue[c][d]/4)==1-bol(turn)&e%4==0){
+				return true;
+			}
+		}
+	}
+	if(e%4==2||(vieri(a,b,2)&e%4==0)){
+		if(Math.abs(a-c)==1&Math.abs(b-d)==1){
+			if(alue[c][d]==-1){
+				return true;
+			}
+			if(Math.floor(alue[c][d]/4)==1-bol(turn)&e%4==0){
+				return true;
+			}
+		}
+	}
+	if(e%4==3||(vieri(a,b,3)&e%4==0)){
+		if((Math.abs(a-c)==1&Math.abs(b-d)==2)||(Math.abs(a-c)==2&Math.abs(b-d)==1)){
+			if(alue[c][d]==-1){
+				return true;
+			}
+			if(Math.floor(alue[c][d]/4)==1-bol(turn)&e%4==0){
+				return true;
+			}
+		}
+	}
+	return false;
+}
+CanvasElement.addEventListener("mousedown",liiku);
+function keypress(e){
+	if(begin){
+		return;
+	}
+	if(e>47&e<52){
+		if(e<50){
+			bot[0]=false;
+		}
+		if(e%2==0){
+			bot[1]=false;
+		}
+		if(bot[bol(turn)]){
+			liikutaai();
+		}
+		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+		document.getElementById("but0").hidden=true;
+		document.getElementById("but1").hidden=true;
+		document.getElementById("but2").hidden=true;
+		document.getElementById("but3").hidden=true;
+		begin=true;
+		piirra()
+	}
+}
+function liiku(e){
+	if(!begin){
+		return;
+	}
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	x=(x-x%pix)/pix;
+	y=(y-y%pix)/pix;
+	if(x<0||y<0||x>asap-1||y>asap-1){
+		return;
+	}
+	if(bot[bol(turn)]){
+		return;
+	}
+	if(Math.floor(safloo(x,y)/4)==bol(turn)){
+		lx=x;
+		ly=y;
+		vuoro=1;
+		piirra();
+		drawmoves(lx,ly)
+	}
+	if(vuoro==1&Math.floor(safloo(x,y)/4)!=bol(turn)){
+		if(legal(lx,ly,x,y)){
+			alue[x][y]=alue[lx][ly];
+			alue[lx][ly]=-1;
+			vuoro=0;
+			turn=!turn;
+			vuoromaara++;
+			document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+			piirra();
+			testwin();
+			if(!win){
+				if(bot[bol(turn)]){
+					setTimeout("liikutaai()",500);
+				}
+			}
+		}
+	}
+	if(win){
+		piirra();
+		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara+" ja pelaaja "+winner+" on voittanut, koska "+reason;
+	}
+}
+function testwin(){
+	var parrotCount=0;
+	for(q=0;q<asap;q++){
+		for(w=0;w<asap;w++){
+			if(alue[q][w]==bol(turn)*4){
+				parrotCount++;
+			}
+		}
+	}
+	if(parrotCount==0){
+		win=true;
+		winner=bol(!turn)+1
+		reason="hän söi kaikki toisen pelaajan papukaijanappulat."
+	}
+	len=0;
+	for(q=0;q<asap;q++){
+		for(w=0;w<asap;w++){
+			if(Math.floor(alue[q][w]/4)==bol(turn)){
+				for(i=0;i<asap;i++){
+					for(j=0;j<asap;j++){
+						if(legal(q,w,i,j)){
+							len++;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(len==0){
+		win=true;
+		winner=bol(!turn)+1
+		reason="toinen pelaaja ei pystynyt liikkumaan."
+	}
+	if(vuoromaara==limit){
+		piececount=0;
+		piececount2=0;
+		for(q=0;q<asap;q++){
+			for(w=0;w<asap;w++){
+				if(Math.floor(alue[q][w]/4)==0){
+					piececount++;
+				}
+				if(Math.floor(alue[q][w]/4)==1){
+					piececount2++;
+				}
+			}
+		}
+		if(piececount>piececount2){
+			win=true;
+			winner=1
+			reason="hänellä oli enemmän nappuloita ja "+limit+" siirtoa kului umpeen."
+		}
+		else if(piececount2>piececount){
+			win=true;
+			winner=2
+			reason="hänellä oli enemmän nappuloita ja "+limit+" siirtoa kului umpeen."
+		}
+		else{
+			win=true;
+			winner=2;
+			reason=limit+" siirtoa kului umpeen ja vaikka kummallakin oli yhtä monta pelinappulaa jäljellä, hän ei aloittanut."
+		}
+	}
+}
+function syomi(a,b){
+	turn=!turn;
+	var totta=false;
+	for(q=0;q<asap;q++){
+		for(w=0;w<asap;w++){
+			if(legal(q,w,a,b)&alue[q][w]==bol(turn)*4){
+				totta=true;
+			}
+		}
+	}
+	turn=!turn;
+	return totta;
+}
+function kuuluu(l){
+	if(l%4!=0){
+		return true;
+	}
+	return false;
+}
+function liikutaai(){
+	var len=0;
+	for(q=0;q<asap;q++){
+		for(w=0;w<asap;w++){
+			if(Math.floor(alue[q][w]/4)==bol(turn)){
+				for(i=0;i<asap;i++){
+					for(j=0;j<asap;j++){
+						if(legal(q,w,i,j)){
+							opshuns[len][0]=q;
+							opshuns[len][1]=w;
+							opshuns[len][2]=i;
+							opshuns[len][3]=j;
+							opshuns[len][4]=0;
+							len++;
+						}
+					}
+				}
+			}
+		}
+	}
+	var high=-3;
+	for(i=0;i<len;i++){
+		a=opshuns[i][2];
+		b=opshuns[i][3]
+		if((safloo(a-1,b)==bol(turn)*4||safloo(a+1,b)==bol(turn)*4||safloo(a,b-1)==bol(turn)*4||safloo(a,b+1)==bol(turn)*4)&alue[opshuns[i][0]][opshuns[i][1]]%4!=0){
+			opshuns[i][4]=1;
+		}
+		if((kuuluu(safloo(a-1,b))||kuuluu(safloo(a+1,b))||kuuluu(safloo(a,b-1))||kuuluu(safloo(a,b+1)))&alue[opshuns[i][0]][opshuns[i][1]]%4==0){
+			opshuns[i][4]=1;
+		}
+		if(Math.floor(alue[a][b]/4)==1-bol(turn)&alue[a][b]%4==0){
+			opshuns[i][4]=2;
+		}
+		if(alue[opshuns[i][0]][opshuns[i][1]]%4==0&syomi(opshuns[i][0],opshuns[i][1])){
+			opshuns[i][4]=2;
+		}
+		if(Math.floor(alue[a][b]/4)==1-bol(turn)&(alue[a][b]%4==1||alue[a][b]%4==2)){
+			opshuns[i][4]=3;
+		}
+		if((alue[opshuns[i][0]][opshuns[i][1]]%4==1||alue[opshuns[i][0]][opshuns[i][1]]%4==2)&syomi(opshuns[i][0],opshuns[i][1])){
+			opshuns[i][4]=3;
+		}
+		if(Math.floor(alue[a][b]/4)==1-bol(turn)&alue[a][b]%4==3){
+			opshuns[i][4]=4;
+		}
+		if(alue[opshuns[i][0]][opshuns[i][1]]%4==3&syomi(opshuns[i][0],opshuns[i][1])){
+			opshuns[i][4]=4;
+		}
+		c=alue[a][b];
+		alue[a][b]=alue[opshuns[i][0]][opshuns[i][1]]
+		alue[opshuns[i][0]][opshuns[i][1]]=-1;
+		if(syomi(a,b)&alue[a][b]%4==0){
+			if(opshuns[i][4]-1>-1){
+				opshuns[i][4]=opshuns[i][4]-1;
+			}
+			else{
+				opshuns[i][4]=-1;
+			}
+		}
+		if((syomi(a,b)&alue[a][b]%4==1)||(syomi(a,b)&alue[a][b]%4==2)){
+			if(opshuns[i][4]-1>-2){
+				opshuns[i][4]=opshuns[i][4]-2;
+			}
+			else{
+				opshuns[i][4]=-2;
+			}
+		}
+		if(syomi(a,b)&alue[a][b]%4==3){
+			if(opshuns[i][4]-1>-3){
+				opshuns[i][4]=opshuns[i][4]-3;
+			}
+			else{
+				opshuns[i][4]=-3;
+			}
+		}
+		alue[opshuns[i][0]][opshuns[i][1]]=alue[a][b];
+		alue[a][b]=c;
+		if(opshuns[i][4]>high){
+			high=opshuns[i][4];
+		}
+	}
+	var highcount=0;
+	for(i=0;i<len;i++){
+		if(opshuns[i][4]==high){
+			highcount++;
+		}
+	}
+	movenum=Math.floor(Math.random()*highcount)
+	highcount=0;
+	for(i=0;i<len;i++){
+		if(opshuns[i][4]==high){
+			if(highcount==movenum){
+				movenum=i;
+				break;
+			}
+			highcount++;
+		}
+	}
+	alue[opshuns[movenum][2]][opshuns[movenum][3]]=alue[opshuns[movenum][0]][opshuns[movenum][1]]
+	alue[opshuns[movenum][0]][opshuns[movenum][1]]=-1;
+	piirra();
+	vuoromaara++;
+	document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+	turn=!turn;
+	testwin();
+	if(win){
+		piirra();
+		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara+" ja pelaaja "+winner+" on voittanut, koska "+reason;
+	}
+	if(!win){
+		if(bot[bol(turn)]){
+			setTimeout("liikutaai()",10);
+		}
+	}
+}
+</script>
+</body>
+</head>
