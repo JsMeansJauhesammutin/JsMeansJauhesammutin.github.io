@@ -1,0 +1,78 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> Kateva pohja </title>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var CanvasElement=document.getElementById("CanvasId");
+if(CanvasElement.getContext){
+	var ctx = CanvasElement.getContext("2d");
+}
+var asap=6;
+var yksi=100;
+var hyt=false;
+var num=new Array(asap);
+for(i=0;i<asap;i++){
+	num[i]=Math.round(Math.random()*500);
+}
+function numb(a){
+	if(a<0){
+		return num[0];
+	}
+	if(a>asap-1){
+		return num[asap-1];
+	}
+	return num[a]
+}
+function intp(a,b,c,d,e){
+	if(true){
+		if(a-b!=0){
+			f=((a-e)+(b-a))/2/(b-a);
+			g=((b-a)+(d-b))/2/(b-a);
+			return a+(b-a)*(c*c*c*(g*3+f*3-6)/3+c*c*(6-2*g-4*f)/2+c*f);
+		}
+		else{
+			f=((a-e)+(b-a))/2;
+			g=((b-a)+(d-b))/2;
+			return a+(c*c*c*(g*3+f*3)/3+c*c*(-2*g-4*f)/2+c*f);
+		}
+	}
+	//return a+(b-a)*(c)
+	//return a+(b-a)*(c*c*3-c*c*c*2)
+}
+function draw(){
+	ctx.clearRect(0,0,500,500);
+	for(i=0;i<500;i++){
+		ctx.fillRect(i,500,1,-intp(numb((i-i%yksi)/yksi),numb((i-i%yksi)/yksi+1),(i%yksi)/yksi,numb((i-i%yksi)/yksi+2),numb((i-i%yksi)/yksi-1)))
+	}
+	for(i=0;i<asap;i++){
+		ctx.fillRect(i*yksi-1,0,2,500);
+	}
+}
+draw();
+document.addEventListener("mousedown",hiiria);
+document.addEventListener("mousemove",hiiril);
+document.addEventListener("mouseup",hiiriy);
+function hiiria(e){
+	hyt=true;
+	place(e.x-6,e.y-6);
+}
+function hiiril(e){
+	if(hyt){
+		place(e.x-6,e.y-6);
+	}
+}
+function hiiriy(e){
+	hyt=false;
+}
+function place(a,b){
+	if((a+20)%yksi<40){
+		num[((a+20)-(a+20)%yksi)/yksi]=500-b;
+		draw();
+	}
+}
+</script>
+</body>
+</head>
