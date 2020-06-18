@@ -6,15 +6,17 @@
 <body>
 <canvas id="canvasId" width="500" height="500" onclick="main()"></canvas>
 <script text="text/javascript">
+var CanvasElement=document.getElementById("canvasId");
+if(CanvasElement.getContext){
+	var ctx = CanvasElement.getContext("2d");
+}
+ctx.font="50px Arial";
+ctx.fillText("Click me",100,280)
 ran=false;
 function main(){
 if(ran){return;}
 ran=true;
 ctxAudio=new AudioContext();
-var CanvasElement=document.getElementById("canvasId");
-if(CanvasElement.getContext){
-	var ctx = CanvasElement.getContext("2d");
-}
 ctx.fillStyle="black"
 var isMouseDown=false;
 var a
