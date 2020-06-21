@@ -29,7 +29,7 @@ function mainLoop(){
 		draw("Congrats, you won!","Your time was "+numberBeautify(finishTime)+". Press r to reset.")
 	}
 	if(status==3){
-		draw("Sorry, but you failed.","Press r to reset. You reached "+(currentDigit)+"/"+length+".")
+		draw("You failed.","Press r to reset. You reached "+(currentDigit)+"/"+length+" in "+numberBeautify(finishTime)+".")
 	}
 	setTimeout("mainLoop()",10)
 }
@@ -69,6 +69,8 @@ function test(e){
 		}
 		else{
 			status=3;
+			date=new Date();
+			finishTime=date.getTime()-time;
 		}
 		if(currentDigit==length){
 			status=2;
