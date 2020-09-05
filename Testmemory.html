@@ -20,15 +20,19 @@ function mainLoop(){
 	date=new Date();
 	timeNow=date.getTime();
 	if(status==0){
+		ctx.fillStyle="lightgreen";
 		draw("Press 3 to begin.","Write the first 100 digits of Pi.")
 	}
 	if(status==1){
+		ctx.fillStyle="lightblue";
 		draw(numberBeautify(timeNow-time),(currentDigit)+"/"+length+" written. Keep writing!")
 	}
 	if(status==2){
+		ctx.fillStyle="yellow";
 		draw("Congrats, you won!","Your time was "+numberBeautify(finishTime)+". Press r to reset.")
 	}
 	if(status==3){
+		ctx.fillStyle="red";
 		draw("You failed.","Press r to reset. You reached "+(currentDigit)+"/"+length+" in "+numberBeautify(finishTime)+".")
 	}
 	setTimeout("mainLoop()",10)
@@ -37,7 +41,6 @@ function numberBeautify(number){
 	return Math.floor(Math.round(number/10)/100)+"."+Math.round(number/10)%100;
 }
 function draw(a,b){
-	ctx.fillStyle="lightblue";
 	ctx.fillRect(0,0,500,500);
 	ctx.fillStyle="black";
 	ctx.font="50px Arial";
