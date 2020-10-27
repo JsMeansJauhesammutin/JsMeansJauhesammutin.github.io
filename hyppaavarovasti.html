@@ -7,7 +7,7 @@
 <canvas id="CanvasId" width="500" height="500"></canvas>
 <script text="text/javascript">
 var canvasElement=document.getElementById("CanvasId");
-if(pasi.getContext){
+if(canvasElement.getContext){
 	var ctx = canvasElement.getContext("2d");
 }
 ctx.font="50px Arial";
