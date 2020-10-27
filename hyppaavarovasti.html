@@ -1,0 +1,220 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> Arcade-like jumping game</title>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+if(pasi.getContext){
+	var ctx = canvasElement.getContext("2d");
+}
+ctx.font="50px Arial";
+var ghosty=540;
+var ghostx=250;
+var ghostr=20;
+var ghostspeed=0.3;
+var ghoston=true;
+var ghostwhen=10;
+var ko=50;
+var ha=5;
+var jump=35;
+var grav=0.5;
+var maxjump=0;     
+var jumps=0;
+var asap=250/ko;
+var x=50;
+var y=450-ha-ko;
+var hei=50;
+var moi=50;
+var Ismoup=false;
+var frx=Math.random()*500;
+var fry=Math.random()*400;
+var mox=0;
+var timer=true;
+var time=1000;
+var pisteet=0;
+var moy=0;
+var keys=new Array(false);
+var platforms=new Array(asap);
+platforms[0]=new Array(50,450,true);
+for(i=1;i<asap;i++){
+	platforms[i]=new Array(200,i*ko*2-ko,true);
+}
+//platforms[4][0]=200;
+function draw(){
+	ctx.clearRect(0,0,500,500);
+	ctx.fillStyle="green";
+	for(i=0;i<asap;i++){
+		ctx.fillRect(platforms[i][0]-ko,platforms[i][1]-ko,ko*2,ko*2);
+	}
+	ctx.fillStyle="red";
+	ctx.fillRect(x-ha,y-ha,ha*2,ha*2);
+	ctx.fillStyle="orange";
+	ctx.fillRect(frx-10,fry-10,20,20);
+	if(pisteet>ghostwhen&ghoston){
+		ctx.fillStyle="purple";
+		ctx.fillRect(ghostx-ghostr,ghosty-ghostr,ghostr*2,ghostr*2);
+	}
+	ctx.fillStyle="black";
+	ctx.fillText("Score: "+pisteet,150,50);
+	if(timer){
+		ctx.fillRect(200,490,200,10);
+		ctx.fillStyle="lightgreen";
+		ctx.fillRect(200,490,time/5,10);
+	}
+}
+function hitdec(){
+	for(i=0;i<asap;i++){
+		if(Math.abs(platforms[i][0]-x)<ko+ha&Math.abs(platforms[i][1]-y)<ko+ha){
+			return i;
+		}
+	}
+	if(Math.abs(frx-x)<45+ha&Math.abs(fry-y)<25+ha){
+		frx=Math.random()*500;
+		fry=Math.random()*400;
+		pisteet++;
+		time=1000;
+	}
+	return -1;
+}
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function mainloop(){
+	if(keys[0]){
+		y+=10;
+		if((hitdec()>-1||jumps<maxjump)&moy<jump-11){
+			moy=jump;
+			//jumps++;
+		}
+		y-=10;
+	}
+	if(keys[1]){
+		mox=(mox*5-1)/5;
+	}
+	if(keys[2]){
+		mox=(mox*5+1)/5;
+	}
+	moy-=grav;
+	y-=moy/10;
+	alu=hitdec();
+	if(alu>-1){
+		y+=moy/10;
+		x+=bol(platforms[alu][2])*4-2;
+		if(hitdec()>-1){
+			x-=bol(platforms[alu][2])*4-2;
+		}
+		moy=0;
+		jumps=0;
+	}
+	if(mox>3){
+		mox=3;
+	}
+	if(mox<-3){
+		mox=-3;
+	}
+	x+=mox
+	if(hitdec()>-1){
+		x-=mox
+		mox=0;
+	}
+	if(mox<0){mox+=0.1;}
+	if(mox>0){mox-=0.1;}
+	if(mox<0.1&mox>-0.1){mox=0;}
+	if(x<0){x=0;}
+	if(x>500){x=500;}
+	draw();
+	for(i=0;i<asap;i++){
+		moving=bol(platforms[i][2])*2-1;
+		platforms[i][0]+=moving*2;
+		if(Math.abs(platforms[i][0]-x)<ko+ha&Math.abs(platforms[i][1]-y)<ko+ha){
+			platforms[i][0]-=moving*2;
+			platforms[i][2]=!platforms[i][2];
+		}
+		if(platforms[i][0]<0||platforms[i][0]>500){platforms[i][2]=!platforms[i][2];}
+	}
+	if(pisteet>ghostwhen&ghoston){
+		if(x<ghostx-(ghostspeed+1)){
+			ghostx-=ghostspeed;
+		}
+		if(x>ghostx+(ghostspeed+1)){
+			ghostx+=ghostspeed;
+		}
+		if(y<ghosty-(ghostspeed+1)){
+			ghosty-=ghostspeed;
+		}
+		if(y>ghosty+(ghostspeed+1)){
+			ghosty+=ghostspeed;
+		}
+	}
+	if(timer){
+		time--;
+	}
+	if(y>500||(time<1&timer)||hitghost()){
+		lose(0);
+	}
+	else{
+		setTimeout("mainloop()",10);
+	}
+}
+function hitghost(){
+	if(Math.abs(x-ghostx)<ha+ghostr&Math.abs(y-ghosty)<ha+ghostr){
+		return true
+	}
+	return false;
+}
+function lose(a){
+	ctx.fillStyle="rgba(0,0,0,0.1)";
+	if(a<50){
+		ctx.fillRect(0,0,500,500);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else if(a==50){
+		platforms[0]=new Array(50,450,true);
+		for(i=1;i<asap;i++){
+			platforms[i][0]=200;
+			platforms[i][1]=i*ko*2-ko;
+			platforms[i][2]=true;
+		}	
+		platforms[0][0]=50;
+		platforms[0][1]=450;
+		platforms[0][2]=true;
+		x=50;
+		y=450-ha-ko;
+		time=1000;
+		pisteet=0;
+		mox=0;
+		moy=0;
+		ghostx=250;
+		ghosty=540;
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else if(a>50&a<75){
+		draw();
+		ctx.fillStyle="black";
+		ctx.fillRect(0,0,500,1500-a*20);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else{
+		mainloop();
+	}
+}
+mainloop();
+document.addEventListener("keydown",move);
+document.addEventListener("keyup",mover);
+function move(event){
+	if(event.keyCode==32){keys[0]=true;}
+	if(event.keyCode==37){keys[1]=true;}
+	if(event.keyCode==39){keys[2]=true;}
+}
+function mover(event){
+	if(event.keyCode==32){keys[0]=false;}
+	if(event.keyCode==37){keys[1]=false;}
+	if(event.keyCode==39){keys[2]=false;}
+}
+</script>
+</body>
+</head>
