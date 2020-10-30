@@ -32,10 +32,15 @@ var Ismoup=false;
 var frx=Math.random()*500;
 var fry=Math.random()*400;
 var mox=0;
+var hyt=false;
 var timer=true;
+var qx=0;
+var qy=0;
 var time=1000;
 var pisteet=0;
 var moy=0;
+var mx=0;
+var my=0;
 var keys=new Array(false);
 var platforms=new Array(asap);
 platforms[0]=new Array(50,450,true);
@@ -84,7 +89,7 @@ function bol(a){
 	return 0;
 }
 function mainloop(){
-	if(keys[0]){
+	if(keys[0]||(my<y&hyt)||(my<50&hyt)){
 		y+=10;
 		if((hitdec()>-1||jumps<maxjump)&moy<jump-11){
 			moy=jump;
@@ -92,10 +97,10 @@ function mainloop(){
 		}
 		y-=10;
 	}
-	if(keys[1]){
+	if(keys[1]||(mx<qx&hyt)){
 		mox=(mox*5-1)/5;
 	}
-	if(keys[2]){
+	if(keys[2]||(mx>=qx&hyt)){
 		mox=(mox*5+1)/5;
 	}
 	moy-=grav;
@@ -214,6 +219,30 @@ function mover(event){
 	if(event.keyCode==32){keys[0]=false;}
 	if(event.keyCode==37){keys[1]=false;}
 	if(event.keyCode==39){keys[2]=false;}
+}
+document.addEventListener("mousedown",hiiria);
+document.addEventListener("mousemove",hiiril);
+document.addEventListener("mouseup",hiiriy);
+function hiiria(e){
+	hyt=true;
+	mx=e.x-6;
+	my=e.y-6;
+	qx=x;
+}
+function hiiril(e){
+	if(hyt){
+		mx=e.x-6
+		my=e.y-6;
+	}
+}
+function hiiriy(e){
+	hyt=false;
+}
+function place(a,b){
+	if((a+20)%yksi<40){
+		num[((a+20)-(a+20)%yksi)/yksi]=500-b;
+		draw();
+	}
 }
 </script>
 </body>
