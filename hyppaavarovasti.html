@@ -220,9 +220,9 @@ function mover(event){
 	if(event.keyCode==37){keys[1]=false;}
 	if(event.keyCode==39){keys[2]=false;}
 }
-document.addEventListener("mousedown",hiiria);
-document.addEventListener("mousemove",hiiril);
-document.addEventListener("mouseup",hiiriy);
+canvasElement.addEventListener("mousedown",hiiria);
+canvasElement.addEventListener("mousemove",hiiril);
+canvasElement.addEventListener("mouseup",hiiriy);
 function hiiria(e){
 	hyt=true;
 	mx=e.x-6;
