@@ -358,15 +358,15 @@ function testwin(){
 	}
 	if(untildraw==150){
 		win=true;
-		document.getElementById("turn").innerHTML+=" ja "+placo[bol(turn)]+" on voittanut, sillä aika kului loppuun ja hän söi viimeksi.";
+		document.getElementById("turn").innerHTML+=" and "+placo[bol(turn)]+" has won, because time's up and they were the last person to eat";
 	}
 	else if(blackMajaers<minMajaers){
 		win=true;
-		document.getElementById("turn").innerHTML+=" ja musta on voittanut.";
+		document.getElementById("turn").innerHTML+=" and black has won.";
 	}
 	else if(whiteMajaers<minMajaers){
 		win=true;
-		document.getElementById("turn").innerHTML+=" ja valkoinen on voittanut.";
+		document.getElementById("turn").innerHTML+=" and white has won.";
 	}
 }
 function blowup(a,b){
@@ -416,7 +416,7 @@ function liiku(e){
 				turni=turn;
 			}
 			vuoromaara++;
-			document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+			document.getElementById("turn").innerHTML="It is turn number "+vuoromaara
 			piirra();
 			untildraw++;
 			testwin();
