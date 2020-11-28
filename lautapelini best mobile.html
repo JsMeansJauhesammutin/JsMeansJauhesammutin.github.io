@@ -5,12 +5,12 @@
 <title> Kateva pohja </title>
 <body>
 <canvas id="CanvasId" width="900" height="900"></canvas>
-<input type="button" id="but0" value="pelaaja vs. pelaaja" onmousedown="keypress(48)">
-<input type="button" id="but1" value="pelaaja vs. botti" onmousedown="keypress(49)">
-<input type="button" id="but2" value="botti vs. pelaaja" onmousedown="keypress(50)">
-<input type="button" id="but3" value="botti vs. botti" onmousedown="keypress(51)">
+<input type="button" id="but0" value="player vs. player" onmousedown="keypress(48)">
+<input type="button" id="but1" value="player vs. bot" onmousedown="keypress(49)">
+<input type="button" id="but2" value="bot vs. player" onmousedown="keypress(50)">
+<input type="button" id="but3" value="bot vs. bot" onmousedown="keypress(51)">
 <input type="button" id="but4" value="Hard challenge mode" onmousedown="keypress(52)">
-<h1 id="turn">Valitse pelitilasi</h1>
+<h1 id="turn">Choose the gamemode</h1>
 <script text="text/javascript">
 var CanvasElement=document.getElementById("CanvasId");
 if(CanvasElement.getContext){
@@ -142,7 +142,7 @@ function keypress(e){
 		if(bot[bol(turn)]){
 			liikutaai();
 		}
-		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+		document.getElementById("turn").innerHTML="It is turn number "+vuoromaara
 		document.getElementById("but0").hidden=true;
 		document.getElementById("but1").hidden=true;
 		document.getElementById("but2").hidden=true;
@@ -160,7 +160,7 @@ function keypress(e){
 		if(bot[bol(turn)]){
 			liikutaai();
 		}
-		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+		document.getElementById("turn").innerHTML="It is turn number "+vuoromaara
 		document.getElementById("but0").hidden=true;
 		document.getElementById("but1").hidden=true;
 		document.getElementById("but2").hidden=true;
@@ -198,7 +198,7 @@ function liiku(e){
 			vuoro=0;
 			turn=!turn;
 			vuoromaara++;
-			document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+			document.getElementById("turn").innerHTML="It is turn number "+vuoromaara
 			piirra();
 			testwin();
 			if(!win){
@@ -210,7 +210,7 @@ function liiku(e){
 	}
 	if(win){
 		piirra();
-		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara+" ja pelaaja "+winner+" on voittanut, koska "+reason;
+		document.getElementById("turn").innerHTML="It is turn number "+vuoromaara+" and player "+winner+" has won, because "+reason;
 	}
 }
 function testwin(){
@@ -225,7 +225,7 @@ function testwin(){
 	if(parrotCount==0){
 		win=true;
 		winner=bol(!turn)+1
-		reason="hän söi kaikki toisen pelaajan papukaijanappulat."
+		reason="they captured all the parrot pieces of the other player."
 	}
 	len=0;
 	for(q=0;q<asap;q++){
@@ -244,7 +244,7 @@ function testwin(){
 	if(len==0){
 		win=true;
 		winner=bol(!turn)+1
-		reason="toinen pelaaja ei pystynyt liikkumaan."
+		reason="the other player couldn't move."
 	}
 	if(vuoromaara==limit){
 		piececount=0;
@@ -262,17 +262,17 @@ function testwin(){
 		if(piececount>piececount2){
 			win=true;
 			winner=1
-			reason="hänellä oli enemmän nappuloita ja "+limit+" siirtoa kului umpeen."
+			reason="They had more pieces and "+limit+" turns passed."
 		}
 		else if(piececount2>piececount){
 			win=true;
 			winner=2
-			reason="hänellä oli enemmän nappuloita ja "+limit+" siirtoa kului umpeen."
+			reason="They had more pieces and "+limit+" turns passed."
 		}
 		else{
 			win=true;
 			winner=2;
-			reason=limit+" siirtoa kului umpeen ja vaikka kummallakin oli yhtä monta pelinappulaa jäljellä, hän ei aloittanut."
+			reason=limit+" turns passed and even though both players had the same amount of pieces left, this one didn't go first."
 		}
 	}
 }
@@ -397,12 +397,12 @@ function liikutaai(){
 	alue[opshuns[movenum][0]][opshuns[movenum][1]]=-1;
 	piirra();
 	vuoromaara++;
-	document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara
+	document.getElementById("turn").innerHTML="It is turn number "+vuoromaara
 	turn=!turn;
 	testwin();
 	if(win){
 		piirra();
-		document.getElementById("turn").innerHTML="On vuoro numero "+vuoromaara+" ja pelaaja "+winner+" on voittanut, koska "+reason;
+		document.getElementById("turn").innerHTML="It is turn number "+vuoromaara+" and player "+winner+" has won, because "+reason;
 	}
 	if(!win){
 		if(bot[bol(turn)]){
