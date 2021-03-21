@@ -11,7 +11,7 @@ if(canvasElement.getContext){
 	var ctx = canvasElement.getContext("2d");
 }
 ctx.font="50px Arial";
-var div=2;
+var div=1.6;
 var asappe=800;
 var ghosty=asappe+40;
 var ghostx=asappe/2;
@@ -60,8 +60,10 @@ function draw(){
 	ctx.clearRect(0,0,500,500);
 	ctx.fillStyle="green";
 	for(i=0;i<asap;i++){
-		oops(platforms[i][0]-ko,platforms[i][1]-ko,ko*2,ko*2);
+		oops(platforms[i][0]-ko,Math.round(platforms[i][1]-ko)-1,ko*2,ko*2+1);
 	}
+	ctx.fillStyle="black";
+	oops(x-ha-div,y-ha-div,ha*2+div*2,ha*2+div*2);
 	ctx.fillStyle="red";
     if(jumps!=maxjump){
     	ctx.fillStyle=colors[7-(maxjump-jumps)%7-1];

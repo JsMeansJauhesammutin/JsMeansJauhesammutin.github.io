@@ -62,6 +62,8 @@ function draw(){
 	for(i=0;i<asap;i++){
 		oops(platforms[i][0]-ko,platforms[i][1]-ko,ko*2,ko*2);
 	}
+	ctx.fillStyle="black";
+	oops(x-ha-div,y-ha-div,ha*2+div*2,ha*2+div*2);
 	ctx.fillStyle="red";
     if(jumps!=maxjump){
     	ctx.fillStyle=colors[7-(maxjump-jumps)%7-1];
