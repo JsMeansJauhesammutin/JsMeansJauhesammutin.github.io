@@ -1,0 +1,169 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> Kateva pohja </title>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<h1 id="lives">Lives: 1</h1>
+<script text="text/javascript">
+var CanvasElevement=document.getElementById("CanvasId");
+if(CanvasElevement.getContext){
+	var ctx = CanvasElevement.getContext("2d");
+}
+var a
+var h
+var ctxAudio
+var l1
+var l2
+var l3 
+var lives=2;
+document.getElementById("lives").innerHTML="Lives: "+lives
+var l4
+var l5
+var pix=20;
+var lose=0;
+var fre= new Array(261.63,293.66,329.63,349.23,393.88,440,493.88);
+var keys=new Array(67,68,69,70,71,65,66)
+var notes = "cdefgab"
+var x=12;
+var y=12;
+var col=new Array("white","yellow","green","orange","blue","purple","white")
+var asap=25;
+var notealue=new Array(asap);
+for(i=0;i<asap;i++){
+	notealue[i]=new Array(asap);
+	for(j=0;j<asap;j++){
+		notealue[i][j]=Math.floor(Math.random()*7)
+	}
+}
+var exposed=new Array(asap);
+for(i=0;i<asap;i++){
+	exposed[i]=new Array(asap);
+	for(j=0;j<asap;j++){
+		exposed[i][j]=0;
+	}
+}
+exposed[x][y]=2;
+function start(b){
+	if(a){
+		//a.stop();
+		l5=l4;
+		l4=l3
+		l3=l2;
+		l2=l1;
+		l1=ctxAudio;
+		if(l5){
+			l5.close();
+		}
+	}
+	ctxAudio = new AudioContext()
+	a = ctxAudio.createOscillator()
+	a.frequency.value=b
+	h = ctxAudio.createGain()
+	a.connect(h)
+	h.connect(ctxAudio.destination)
+	a.type="sine"
+	a.start(0);
+	h.gain.exponentialRampToValueAtTime(0.000001, ctxAudio.currentTime + 3);
+}
+//document.addEventListener("click",play)
+document.addEventListener("keydown",move)
+function move(e){
+	if(lose!=0){
+		return;
+	}
+	b=e.keyCode;
+	lx=x;
+	ly=y;
+	if(b==37&x>0){
+		x--;
+	}
+	if(b==38&y>0){
+		y--;
+	}
+	if(b==39&x<asap-1){
+		x++;
+	}
+	if(b==40&y<asap-1){
+		y++;
+	}
+	if(exposed[x][y]==0){
+		x=lx;
+		y=ly;
+	}
+	if(keys.indexOf(b)!=-1){
+		if(keys.indexOf(b)==notealue[x][y]){
+			exposed[x][y]=2;
+			if(x>0){
+				if(exposed[x-1][y]==0){
+					exposed[x-1][y]=1;
+				}
+			}
+			if(y>0){
+				if(exposed[x][y-1]==0){
+					exposed[x][y-1]=1;
+				}
+			}
+			if(x<asap-1){
+				if(exposed[x+1][y]==0){
+					exposed[x+1][y]=1;
+				}
+			}
+			if(y<asap-1){
+				if(exposed[x][y+1]==0){
+					exposed[x][y+1]=1;
+				}
+			}
+			if(exposed[0][0]==2&exposed[asap-1][0]==2&exposed[0][asap-1]==2&exposed[asap-1][asap-1]==2){
+				lose=2;
+			}
+		}
+		else{
+			lives--;
+			document.getElementById("lives").innerHTML="Lives: "+lives
+			if(lives==0){
+				lose=1;
+			}
+		}
+	}
+	draw()
+	start(fre[notealue[x][y]])
+}
+function play(e){
+	x=e.x-6;
+	y=e.y-6;
+	start(fre[notealue[(x-x%pix)/pix][(y-y%pix)/pix]])
+}
+function draw(){
+	ctx.fillStyle="black"
+	if(lose==1){
+		ctx.fillStyle="blue"
+	}
+	if(lose==2){
+		ctx.fillStyle="pink"
+	}
+	ctx.fillRect(0,0,500,500);
+	ctx.fillStyle="white"
+	for(i=0;i<asap;i++){
+		for(j=0;j<asap;j++){
+			ctx.fillStyle=col[exposed[i][j]]
+			ctx.fillRect(pix*i,pix*j,pix-1,pix-1)
+		}
+	}
+	ctx.fillStyle="rgb(0,0,0,0.5)"
+	ctx.fillRect(pix*x,pix*y,pix-1,pix-1)
+	ctx.fillStyle="black"
+	ctx.font="18px Arial";
+	for(i=0;i<asap;i++){
+		for(j=0;j<asap;j++){
+			if(exposed[i][j]==2){
+				ctx.fillText(notes.charAt(notealue[i][j]),pix*i+5,pix*j+pix-4);
+			}
+		}
+	}
+}
+draw();
+</script>
+</body>
+</head>

@@ -36,10 +36,7 @@ for(i=0;i<asap;i++){
 	for(j=0;j<asap;j++){
 		main[i][j]=0;
 		if(j>199&j<300&i>199&i<300){
-			main[i][j]=1;
-		}
-		if(i==417&j==85){
-			main[i][j]=1;
+			main[i][j]=Math.round(Math.random());
 		}
 	}
 }

@@ -35,12 +35,6 @@ for(i=0;i<asap;i++){
 	main[i]=new Array(asap);
 	for(j=0;j<asap;j++){
 		main[i][j]=0;
-		if(j>199&j<300&i>199&i<300){
-			main[i][j]=1;
-		}
-		if(i==417&j==85){
-			main[i][j]=1;
-		}
 	}
 }
 var side=new Array(asap);
@@ -131,6 +125,8 @@ function loop(){
 				main[i][j]=1-main[i][j];
 			}
 		}*/
+		main[250][250]=1;
+		main[252][250]=1;
 		odd=!odd;
 	}
 	for(i=0;i<asap;i++){

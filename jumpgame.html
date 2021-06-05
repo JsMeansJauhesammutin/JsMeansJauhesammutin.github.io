@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+if(canvasElement.getContext){
+	var ctx = canvasElement.getContext("2d");
+}
+var keys=new Array(false,false,false)
+var off=0.5;
+var asapy=40;
+var pix=500/asapy;
+var moy=0;
+var mox=0;
+var x=250;
+var y=270;
+var hahmoz=4;
+var jump=-35;
+var grav=1;
+var camera=0;
+function calc(a,b){
+	return ((a*b+b*b+a)%19+(a*a*a)%12+(b*a*a)%5+(a*a+b*b)%4)%5==0;
+}
+function hitdec(){
+	for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
+    	for(j=Math.floor((y-hahmoz)/pix);j<Math.floor((y+hahmoz)/pix)+1;j++){
+    		if(calc(i,j)){
+            	return true;
+            }
+   		}
+    }
+    return false;
+}
+function draw(){
+	ctx.clearRect(0,0,500,500);
+    ctx.fillStyle="red";
+    ctx.fillRect(x-camera-hahmoz,y-hahmoz,hahmoz*2,hahmoz*2);
+    ctx.fillStyle="orange"
+	for(i=Math.floor(camera/pix)-1;i<Math.floor((camera+500)/pix)+1;i++){
+    	for(j=0;j<asapy;j++){
+    		if(calc(i,j)){
+            	ctx.fillRect(i*pix-off-camera,j*pix-off,pix+off*2,pix+off*2);	
+            }
+   		}
+    }
+    ctx.font="50px Arial";
+    ctx.fillStyle="black";
+	ctx.fillText("Score: "+Math.round(camera/30),150,50);
+}
+function loop(){
+	if(keys[0]){
+		y+=10;
+		if(hitdec()){
+			moy=jump;
+		}
+		y-=10;
+	}
+	if(keys[1]){
+		mox=(mox*5-1)/5;
+	}
+	if(keys[2]){
+		mox=(mox*5+1)/5;
+	}
+	moy+=grav;
+	y+=moy/10;
+	if(hitdec()){
+		y-=moy/10;
+		moy=0;
+	}
+	if(mox>3){
+		mox=3;
+	}
+	if(mox<-3){
+		mox=-3;
+	}
+	x+=mox
+	if(hitdec()){
+		x-=mox
+		mox=0;
+	}
+	if(mox<0){mox+=0.1;}
+	if(mox>0){mox-=0.1;}
+	if(mox<0.1&mox>-0.1){mox=0;}
+	draw();
+    camera+=0.35;
+    if(y-hahmoz-2<0||y+hahmoz+2>500||x<camera||x>camera+500){
+    	lose(0);
+    }
+    else{
+    	setTimeout("loop()",10);
+    }
+}
+loop();
+function lose(a){
+	ctx.fillStyle="rgba(0,0,0,0.1)";
+	if(a<50){
+		ctx.fillRect(0,0,500,500);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else if(a==50){
+		camera=0;
+        		x=250;
+        		y=270;
+		mox=0;
+		moy=0;
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else if(a>50&a<75){
+		draw();
+		ctx.fillStyle="black";
+		ctx.fillRect(0,0,500,1500-a*20);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else{
+		loop();
+	}
+}
+document.addEventListener("keydown",move);
+document.addEventListener("keyup",mover);
+function move(event){
+	if(event.keyCode==32){keys[0]=true;}
+	if(event.keyCode==37){keys[1]=true;}
+	if(event.keyCode==39){keys[2]=true;}
+}
+function mover(event){
+	if(event.keyCode==32){keys[0]=false;}
+	if(event.keyCode==37){keys[1]=false;}
+	if(event.keyCode==39){keys[2]=false;}
+}
+</script>
+</body>
+</html>
