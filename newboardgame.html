@@ -1,0 +1,155 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Boardgame, let's go!</title>
+<body>
+<canvas id="canvasId" width="600" height="600"></canvas>
+<h1 id="turn">It's turn number 0</h1>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var qwy=1;
+var win=false;
+var boardWidth=6;
+var boardHeight=6;
+var pix=60;
+var lastClickX=0;
+var lastClickY=0;
+var stroke;
+ctx.lineWidth=pix/5;
+var board=new Array(boardWidth);
+var turn=false;
+var boardSetup="222000222000222000000111000111000111";
+var num="0123456"
+var turnNumber=0;
+var vuoro=0;
+var col=new Array("white","black");
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight)
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=num.indexOf(boardSetup.charAt(i*boardHeight+j))-1
+	}
+}
+var playerColors=new Array("black","white")
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function draw(){
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,boardWidth*pix,boardHeight*pix);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if((i+j)%2==1){
+				ctx.fillStyle="darkgrey";
+			}
+			else{
+				ctx.fillStyle="grey";
+			}
+			ctx.fillRect(i*pix,j*pix,pix-1,pix-1);
+			if(board[i][j]%qwy==0){
+				ctx.fillStyle=col[Math.floor(board[i][j]/qwy)]
+				ctx.beginPath();
+				ctx.moveTo(i*pix+pix/2,j*pix+pix/5);
+				ctx.lineTo(i*pix+pix/5,j*pix+pix/10*9);
+				ctx.lineTo(i*pix+pix/5*4,j*pix+pix/10*9);
+				ctx.closePath();
+				ctx.fill();
+				ctx.fillRect(i*pix+pix/10*3,j*pix+pix/5,pix/5*2,pix/10*3);
+				ctx.fillRect(i*pix+pix/10*4.5,j*pix+pix/10,pix/10,pix/10);
+			}
+		}
+	}
+}
+function safeLook(a,b){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){return -2;}
+	return board[a][b];
+}
+function drawMoves(a,b){
+	ctx.fillStyle="rgba(0,255,0,0.5)"
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(legal(a,b,i,j)){
+				if(safeLook(i,j)>-1){ctx.fillStyle="rgba(255,0,0,0.5)"}
+				ctx.fillRect(i*pix+7,j*pix+7,pix-15,pix-15);
+				ctx.fillStyle="rgba(0,255,0,0.5)"
+			}
+		}
+	}
+	ctx.fillStyle="rgba(0,0,255,0.5)";
+	ctx.fillRect(a*pix+7,b*pix+7,pix-15,pix-15);
+}
+function legal(a,b,c,d){
+	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
+	var piece=board[a][b];
+	if(Math.floor(safeLook(c,d)/qwy)==bol(turn)){return false;}
+	if(piece%qwy==0){
+		if((c==a&d-b==bol(turn)*2-1)||(d==b&c-a==bol(turn)*2-1)){
+			return true;
+		}
+		if(Math.floor(safeLook(a-1,b)/qwy)!=bol(turn)&Math.floor(safeLook(a+1,b)/qwy)!=bol(turn)&Math.floor(safeLook(a,b+1)/qwy)!=bol(turn)&Math.floor(safeLook(a,b-1)/qwy)!=bol(turn)&c-a==bol(turn)*2-1&d-b==bol(turn)*2-1){
+			return true;
+		}
+		if(Math.abs(c-a)==2&Math.abs(d-b)==2){
+			if(Math.floor(safeLook((c+a)/2,(d+b)/2)/qwy)==bol(turn)){
+				return true;
+			}
+		}
+	}
+	return false;
+}
+function testwin(){
+	if(Math.floor(board[0][0]/qwy)==0||Math.floor(board[1][0]/qwy)==0||Math.floor(board[0][1]/qwy)==0||Math.floor(board[boardWidth-1][boardHeight-1]/qwy)==1||Math.floor(board[boardWidth-2][boardHeight-1]/qwy)==1||Math.floor(board[boardWidth-1][boardHeight-2]/qwy)==1){
+		win=true;
+		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
+	}
+}
+draw();
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	if(win){
+		return;
+	}
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	x=(x-x%pix)/pix;
+	y=(y-y%pix)/pix;
+	if(x<0||y<0||x>boardWidth-1||y>boardHeight-1){
+		return;
+	}
+	if(Math.floor(safeLook(x,y)/qwy)==bol(turn)&vuoro==0){
+		lastClickX=x;
+		lastClickY=y;
+		vuoro=1;
+		draw();
+		drawMoves(lastClickX,lastClickY)
+	}
+	else if(vuoro==1){
+		if(legal(lastClickX,lastClickY,x,y)){
+			board[x][y]=board[lastClickX][lastClickY];
+			board[lastClickX][lastClickY]=-1;
+			if(Math.abs(x-lastClickX)==2&Math.abs(y-lastClickY)==2){
+				board[(x+lastClickX)/2][(y+lastClickY)/2]=-1;
+			}
+			vuoro=0;
+			turn=!turn;
+			turnNumber++;
+			document.getElementById("turn").innerHTML="It's turn number "+turnNumber
+			draw();
+			testwin();
+		}
+		else{
+			if(Math.floor(safeLook(x,y)/qwy)==bol(turn)){
+				lastClickX=x;
+				lastClickY=y;
+				vuoro=1;
+			}
+			draw();
+			drawMoves(lastClickX,lastClickY)
+		}
+	}
+}
+</script>
+</body>
+</head>
