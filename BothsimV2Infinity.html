@@ -1,0 +1,128 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> block cellular automaton </title>
+<body>
+<canvas id="CanvasId" width="1900" height="1060"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+if(canvasElement.getContext){
+	var ctx = canvasElement.getContext("2d");
+}
+ctx.fillRect(0,0,1900,1060);
+var asapx=95;
+var asapy=53;
+var pix=20;
+var plad=1;
+var loopin=true;
+var wasloopin=true;
+var next=false;
+var last=new Array(asapx);
+var alpha=0.13;
+var col= new Array("rgb(128,0,128,"+alpha+")","rgb(0,0,255,"+alpha+")","rgb(0,255,0,"+alpha+")","rgb(0,255,255,"+alpha+")","rgb(255,0,0,"+alpha+")","rgb(255,0,255,"+alpha+")","rgb(255,255,0,"+alpha+")","rgb(128,255,128,"+alpha+")");
+var colamount=new Array(col.length)
+for(i=0;i<col.length;i++){
+	colamount[i]=0;
+}
+var strcol= new Array("#000","#111","#222","#333","#444","#555","#666","#777","#888","#999","#AAA");
+var strength=new Array(asapx);
+for(i=0;i<asapx;i++){
+	strength[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		strength[i][j]=0;
+	}
+}
+var laststrength=new Array(asapx);
+for(i=0;i<asapx;i++){
+	laststrength[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		laststrength[i][j]=-1;
+	}
+}
+var main=new Array(asapx);
+for(i=0;i<asapx;i++){
+	main[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		main[i][j]=0;
+	}
+}
+for(i=0;i<asapx;i++){
+	last[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		last[i][j]=Math.floor(Math.random()*col.length);
+		colamount[last[i][j]]++;
+	}
+}
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function mod(a,b){
+	if(a>0){return a%b;}
+	else{return (b-((-a)%b))%b;}
+} 
+function safloo(a,b){
+	return main[mod(a,asap-1)][mod(b,asap-1)];
+}
+function min(a,b){
+	if(a<b){
+		return a;
+	}
+	return b;
+}
+function max(a,b){
+	if(a>b){
+		return a;
+	}
+	return b;
+}
+function saflook(a,b){
+	if(a>-1&b>-1&a<asap&b<asap){
+		return main[a][b];
+	}
+	return 0;
+}
+function loop(){
+	for(i=0;i<asapx;i++){
+		for(j=0;j<asapy;j++){
+			if(Math.floor(laststrength[i][j])!=Math.floor(strength[i][j])||last[i][j]!=main[i][j]){
+				ctx.fillStyle=strcol[Math.floor(strength[i][j])]
+				ctx.fillRect(i*pix,j*pix,pix,pix)
+				ctx.fillStyle=col[last[i][j]]
+				ctx.fillRect(i*pix,j*pix,pix,pix)
+			}
+		}
+	}
+	for(i=0;i<asapx;i++){
+		for(j=0;j<asapy;j++){
+			laststrength[i][j]=strength[i][j];
+			main[i][j]=last[i][j];
+		}
+	}
+	for(i=0;i<200000;i++){
+		ax=Math.floor(Math.random()*asapx);
+		ay=Math.floor(Math.random()*asapy);
+		cx=Math.floor(Math.random()*3)-1;
+		cy=0;
+		if(cx==0){
+			cy=Math.floor(Math.random()*2)*2-1;
+		}
+		if(last[ax][ay]==last[mod(ax+cx,asapx)][mod(ay+cy,asapy)]){
+			strength[ax][ay]=min(10,strength[ax][ay]+0.01);
+		}
+		else{
+			strength[ax][ay]=max(0,strength[ax][ay]-10);
+		}
+		if(Math.random()*20.5>strength[ax][ay]-strength[mod(ax+cx,asapx)][mod(ay+cy,asapy)]+20&colamount[last[ax][ay]]>300&colamount[last[mod(ax+cx,asapx)][mod(ay+cy,asapy)]]<2000){
+			colamount[last[ax][ay]]--;
+			colamount[last[mod(ax+cx,asapx)][mod(ay+cy,asapy)]]++;
+			last[ax][ay]=last[mod(ax+cx,asapx)][mod(ay+cy,asapy)];
+		}
+	}
+	setTimeout("loop()",1);
+}
+setTimeout("loop()",1000);
+</script>
+</body>
+</head>

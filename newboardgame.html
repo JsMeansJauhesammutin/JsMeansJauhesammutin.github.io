@@ -6,24 +6,28 @@
 <body>
 <canvas id="canvasId" width="600" height="600"></canvas>
 <h1 id="turn">It's turn number 0</h1>
+<h3> - Pieces move and capture orthogonally towards the opponent's corner. </br>
+- If your piece is not orthogonally touching one of your pieces, you can also move (or capture with it) it diagonally towards the opponent's corner. </br>
+- You can also use your own piece to diagonally jump over another piece you own, capturing the jumped piece. If you land on an opponent's piece, you capture it.</br>
+- You win by getting your piece to one of the three squares at the corner of your opponent, that is, the square in the corner or one of the two squares orthogonally adjacent to it</h3>
 <script text="text/javascript">
 var canvasElement=document.getElementById("canvasId");
 var ctx=canvasElement.getContext("2d");
-var qwy=1;
+var pieceTypeAmount=1;
 var win=false;
 var boardWidth=6;
 var boardHeight=6;
-var pix=60;
+var squareSideLength=100;
 var lastClickX=0;
 var lastClickY=0;
 var stroke;
-ctx.lineWidth=pix/5;
+ctx.lineWidth=squareSideLength/5;
 var board=new Array(boardWidth);
 var turn=false;
 var boardSetup="222000222000222000000111000111000111";
 var num="0123456"
 var turnNumber=0;
-var vuoro=0;
+var turnPart=0;
 var col=new Array("white","black");
 for(i=0;i<boardWidth;i++){
 	board[i]=new Array(boardHeight)
@@ -38,7 +42,7 @@ function bol(a){
 }
 function draw(){
 	ctx.fillStyle="black";
-	ctx.fillRect(0,0,boardWidth*pix,boardHeight*pix);
+	ctx.fillRect(0,0,boardWidth*squareSideLength,boardHeight*squareSideLength);
 	for(i=0;i<boardWidth;i++){
 		for(j=0;j<boardHeight;j++){
 			if((i+j)%2==1){
@@ -47,17 +51,17 @@ function draw(){
 			else{
 				ctx.fillStyle="grey";
 			}
-			ctx.fillRect(i*pix,j*pix,pix-1,pix-1);
-			if(board[i][j]%qwy==0){
-				ctx.fillStyle=col[Math.floor(board[i][j]/qwy)]
+			ctx.fillRect(i*squareSideLength,j*squareSideLength,squareSideLength-1,squareSideLength-1);
+			if(board[i][j]%pieceTypeAmount==0){
+				ctx.fillStyle=col[Math.floor(board[i][j]/pieceTypeAmount)]
 				ctx.beginPath();
-				ctx.moveTo(i*pix+pix/2,j*pix+pix/5);
-				ctx.lineTo(i*pix+pix/5,j*pix+pix/10*9);
-				ctx.lineTo(i*pix+pix/5*4,j*pix+pix/10*9);
+				ctx.moveTo(i*squareSideLength+squareSideLength/2,j*squareSideLength+squareSideLength/5);
+				ctx.lineTo(i*squareSideLength+squareSideLength/5,j*squareSideLength+squareSideLength/10*9);
+				ctx.lineTo(i*squareSideLength+squareSideLength/5*4,j*squareSideLength+squareSideLength/10*9);
 				ctx.closePath();
 				ctx.fill();
-				ctx.fillRect(i*pix+pix/10*3,j*pix+pix/5,pix/5*2,pix/10*3);
-				ctx.fillRect(i*pix+pix/10*4.5,j*pix+pix/10,pix/10,pix/10);
+				ctx.fillRect(i*squareSideLength+squareSideLength/10*3,j*squareSideLength+squareSideLength/5,squareSideLength/5*2,squareSideLength/10*3);
+				ctx.fillRect(i*squareSideLength+squareSideLength/10*4.5,j*squareSideLength+squareSideLength/10,squareSideLength/10,squareSideLength/10);
 			}
 		}
 	}
@@ -72,27 +76,27 @@ function drawMoves(a,b){
 		for(j=0;j<boardHeight;j++){
 			if(legal(a,b,i,j)){
 				if(safeLook(i,j)>-1){ctx.fillStyle="rgba(255,0,0,0.5)"}
-				ctx.fillRect(i*pix+7,j*pix+7,pix-15,pix-15);
+				ctx.fillRect(i*squareSideLength+7,j*squareSideLength+7,squareSideLength-15,squareSideLength-15);
 				ctx.fillStyle="rgba(0,255,0,0.5)"
 			}
 		}
 	}
 	ctx.fillStyle="rgba(0,0,255,0.5)";
-	ctx.fillRect(a*pix+7,b*pix+7,pix-15,pix-15);
+	ctx.fillRect(a*squareSideLength+7,b*squareSideLength+7,squareSideLength-15,squareSideLength-15);
 }
 function legal(a,b,c,d){
 	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
 	var piece=board[a][b];
-	if(Math.floor(safeLook(c,d)/qwy)==bol(turn)){return false;}
-	if(piece%qwy==0){
+	if(Math.floor(safeLook(c,d)/pieceTypeAmount)==bol(turn)){return false;}
+	if(piece%pieceTypeAmount==0){
 		if((c==a&d-b==bol(turn)*2-1)||(d==b&c-a==bol(turn)*2-1)){
 			return true;
 		}
-		if(Math.floor(safeLook(a-1,b)/qwy)!=bol(turn)&Math.floor(safeLook(a+1,b)/qwy)!=bol(turn)&Math.floor(safeLook(a,b+1)/qwy)!=bol(turn)&Math.floor(safeLook(a,b-1)/qwy)!=bol(turn)&c-a==bol(turn)*2-1&d-b==bol(turn)*2-1){
+		if(Math.floor(safeLook(a-1,b)/pieceTypeAmount)!=bol(turn)&Math.floor(safeLook(a+1,b)/pieceTypeAmount)!=bol(turn)&Math.floor(safeLook(a,b+1)/pieceTypeAmount)!=bol(turn)&Math.floor(safeLook(a,b-1)/pieceTypeAmount)!=bol(turn)&c-a==bol(turn)*2-1&d-b==bol(turn)*2-1){
 			return true;
 		}
 		if(Math.abs(c-a)==2&Math.abs(d-b)==2){
-			if(Math.floor(safeLook((c+a)/2,(d+b)/2)/qwy)==bol(turn)){
+			if(Math.floor(safeLook((c+a)/2,(d+b)/2)/pieceTypeAmount)==bol(turn)){
 				return true;
 			}
 		}
@@ -100,7 +104,7 @@ function legal(a,b,c,d){
 	return false;
 }
 function testwin(){
-	if(Math.floor(board[0][0]/qwy)==0||Math.floor(board[1][0]/qwy)==0||Math.floor(board[0][1]/qwy)==0||Math.floor(board[boardWidth-1][boardHeight-1]/qwy)==1||Math.floor(board[boardWidth-2][boardHeight-1]/qwy)==1||Math.floor(board[boardWidth-1][boardHeight-2]/qwy)==1){
+	if(Math.floor(board[0][0]/pieceTypeAmount)==0||Math.floor(board[1][0]/pieceTypeAmount)==0||Math.floor(board[0][1]/pieceTypeAmount)==0||Math.floor(board[boardWidth-1][boardHeight-1]/pieceTypeAmount)==1||Math.floor(board[boardWidth-2][boardHeight-1]/pieceTypeAmount)==1||Math.floor(board[boardWidth-1][boardHeight-2]/pieceTypeAmount)==1){
 		win=true;
 		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
 	}
@@ -113,26 +117,26 @@ function move(e){
 	}
 	x=e.x-6+window.pageXOffset;
 	y=e.y-6+window.pageYOffset;
-	x=(x-x%pix)/pix;
-	y=(y-y%pix)/pix;
+	x=(x-x%squareSideLength)/squareSideLength;
+	y=(y-y%squareSideLength)/squareSideLength;
 	if(x<0||y<0||x>boardWidth-1||y>boardHeight-1){
 		return;
 	}
-	if(Math.floor(safeLook(x,y)/qwy)==bol(turn)&vuoro==0){
+	if(Math.floor(safeLook(x,y)/pieceTypeAmount)==bol(turn)&turnPart==0){
 		lastClickX=x;
 		lastClickY=y;
-		vuoro=1;
+		turnPart=1;
 		draw();
 		drawMoves(lastClickX,lastClickY)
 	}
-	else if(vuoro==1){
+	else if(turnPart==1){
 		if(legal(lastClickX,lastClickY,x,y)){
 			board[x][y]=board[lastClickX][lastClickY];
 			board[lastClickX][lastClickY]=-1;
 			if(Math.abs(x-lastClickX)==2&Math.abs(y-lastClickY)==2){
 				board[(x+lastClickX)/2][(y+lastClickY)/2]=-1;
 			}
-			vuoro=0;
+			turnPart=0;
 			turn=!turn;
 			turnNumber++;
 			document.getElementById("turn").innerHTML="It's turn number "+turnNumber
@@ -140,10 +144,10 @@ function move(e){
 			testwin();
 		}
 		else{
-			if(Math.floor(safeLook(x,y)/qwy)==bol(turn)){
+			if(Math.floor(safeLook(x,y)/pieceTypeAmount)==bol(turn)){
 				lastClickX=x;
 				lastClickY=y;
-				vuoro=1;
+				turnPart=1;
 			}
 			draw();
 			drawMoves(lastClickX,lastClickY)
