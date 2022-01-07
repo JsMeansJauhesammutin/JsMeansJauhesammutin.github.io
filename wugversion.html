@@ -23,7 +23,7 @@ var lastClickY=0;
 var stroke;
 ctx.lineWidth=2;
 var board=new Array(boardWidth);
-var turn=false;
+var turn=true;
 var boardSetup="222000222000222000000111000111000111";
 var num="0123456"
 var turnNumber=0;
@@ -39,7 +39,7 @@ for(i=0;i<boardWidth;i++){
 		board[i][j]=num.indexOf(boardSetup.charAt(i*boardHeight+j))-1
 	}
 }
-var playerColors=new Array("black","white")
+var playerColors=new Array("pink","lightblue")
 function bol(a){
 	if(a){return 1;}
 	return 0;
