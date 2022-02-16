@@ -9,7 +9,8 @@
 <h3> - Pieces move and capture orthogonally towards the opponent's corner. </br>
 - If your piece is not orthogonally touching one of your pieces, you can also move (or capture with it) it diagonally towards the opponent's corner. </br>
 - You can also use your own piece to diagonally jump over another piece you own, capturing the jumped piece. If you land on an opponent's piece, you capture it.</br>
-- You win by getting your piece to one of the three squares at the corner of your opponent, that is, the square in the corner or one of the two squares orthogonally adjacent to it</h3>
+- You win by getting your piece to one of the three squares at the corner of your opponent, that is, the square in the corner or one of the two squares orthogonally adjacent to it.</br>
+- If you capture all of the pieces of your opponent, you also win.</h3>
 <script text="text/javascript">
 var canvasElement=document.getElementById("canvasId");
 var ctx=canvasElement.getContext("2d");
@@ -137,6 +138,26 @@ function isMoveLegal(a,b,c,d){
 	return false;
 }
 function testWin(){
+	player1Pieces=0;
+	player2Pieces=0;
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(board[i][j]==0){
+				player1Pieces++;
+			}
+			if(board[i][j]==0+pieceTypeAmount){
+				player2Pieces++;
+			}
+		}
+	}
+	if(player1Pieces==0){
+		win=true;
+		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
+	}
+	if(player2Pieces==0){
+		win=true;
+		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
+	}
 	if(Math.floor(board[0][0]/pieceTypeAmount)==0||Math.floor(board[1][0]/pieceTypeAmount)==0||Math.floor(board[0][1]/pieceTypeAmount)==0||Math.floor(board[boardWidth-1][boardHeight-1]/pieceTypeAmount)==1||Math.floor(board[boardWidth-2][boardHeight-1]/pieceTypeAmount)==1||Math.floor(board[boardWidth-1][boardHeight-2]/pieceTypeAmount)==1){
 		win=true;
 		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
