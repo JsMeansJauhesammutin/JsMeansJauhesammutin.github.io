@@ -1769,13 +1769,11 @@ function loop(){
 				boss[4]-=boss[7];
 				if(boss[9]==1||boss[9]==2){
 					if(boss[9]==2){
-						if(boss[6]==0){
-							if(boss[3]+pix-x<0){
-								boss[6]=1;
-							}
-							if(boss[3]+pix-x>0){
-								boss[6]=-1;
-							}	
+						if(boss[3]+pix-x<0){
+							boss[6]=1;
+						}
+						if(boss[3]+pix-x>0){
+							boss[6]=-1;
 						}
 						if(safloo(kor(boss[3],pix)+boss[6]/2+0.5,kor(boss[4]+boss[7],pix)+1)==0){
 							load(kor(boss[3],pix)+boss[6]/2+0.5,kor(boss[4]+boss[7],pix)+1,8-boss[6]/2+0.5);

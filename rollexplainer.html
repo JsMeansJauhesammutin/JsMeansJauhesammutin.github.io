@@ -1,0 +1,123 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title> This is a lot easier. </title>
+<body>
+<h1 id="instructions">Roll a 4d10, and enter the result.</h1>
+<br>
+<input type="text" id="rolls" value="" onkeydown="press(event)">
+<h6 id="result"></h1>
+<script text="text/javascript">
+var numbers="0123456789"
+var mode=0;
+var roll;
+var rollLength=4;
+var secondRoll;
+var secondRollLength=0;
+var thirdRoll;
+var thirdRollLength=0;
+var results=new Array(new Array("Civil tension arise","Bad Leader/Dictator","Plague","Terrible Economy","Major Terrorist Attack"),"Hostile Immigration","Famine","Natural Disaster",new Array("Fort succesfully built","Fort failed"),"An Important person is born","Cultural Event","Peaceful Immigration","Scientific Advancement",new Array("Scientific Golden Age","Great Leader","Economic Boom","New Resource","Wonder of the World"));
+function rolls(e){
+	if(e.keyCode==13){
+		if(mode==0){
+			roll=turnIntoArray(document.getElementById("rolls").value,rollLength);
+			if(roll==-1){
+				return;
+			}
+			for(i=0;i<rollLength;i++){
+				if(roll[i]==1||roll[i]==10||roll[i]==5){
+					mode=1;
+					if(roll[i]==5){thirdRollLength++;}
+					else{secondRollLength++;}
+				}
+			}
+			if(secondRollLength==0&mode==1){mode=2;}
+			if(mode>0){return;}
+		}
+		if(mode==1){
+			secondRoll=turnIntoArray(document.getElementById("rolls").value,secondRollLength);
+			if(secondRoll==-1){
+				return;
+			}
+			if(thirdRollLength>0){
+				mode=2;
+				return;
+			}
+		}
+		if(mode==2){
+			thirdRoll=turnIntoArray(document.getElementById("rolls").value,thirdRollLength);
+			if(thirdRoll==-1){
+				return;
+			}
+		}
+		mode=3;
+		var secondIndex=0;
+		var thirdIndex=0;
+		var toAdd="";
+		var toShow="";	
+		for(i=0;i<rollLength;i++){
+			if(roll[i]==1||roll[i]==10){
+				toAdd=results[roll[i]-1][secondRoll[secondIndex]-1];
+				secondIndex++;
+			}
+			else if(roll[i]==5){
+				toAdd=results[roll[i]-1][thirdRoll[thirdIndex]-1];
+				thirdIndex++;
+			}
+			else{
+				toAdd=results[roll[i]];
+			}
+			toShow+=toAdd+"</br>";
+		}
+		document.getElementById("result").innerHTML=toShow;
+	}
+}
+function press(e){
+	rolls(e);
+	if(mode==1){
+		if(secondRollLength==1){
+			document.getElementById("instructions").innerHTML="Roll a d5 and enter the result."
+		}
+		else{
+			document.getElementById("instructions").innerHTML="Roll a "+secondRollLength+"d5 and enter the result."
+		}
+	}
+	if(mode==2){
+		if(thirdRollLength==1){
+			document.getElementById("instructions").innerHTML="Roll a d2 and enter the result."
+		}
+		else{
+			document.getElementById("instructions").innerHTML="Roll a "+thirdRollLength+"d2 and enter the result."
+		}
+	}
+	if(mode==3){
+		document.getElementById("instructions").innerHTML="";
+	}
+}
+function turnIntoArray(a,b){
+	var rollArray=new Array(b);
+	var currentNumber="";
+	var currentIndex=0;
+	for(i=0;i<a.length;i++){	
+		if(currentIndex>b-1){return -1;}
+		if(numbers.indexOf(a[i])!=-1){
+			currentNumber+=a[i];
+		}
+		else if(currentNumber!=""){
+			rollArray[currentIndex]=parseInt(currentNumber);
+			currentIndex++;
+			currentNumber=""
+		}
+	}
+	if(currentNumber!=""){
+		rollArray[currentIndex]=parseInt(currentNumber);
+		currentIndex++;
+		currentNumber=""
+	}
+	if(currentIndex<b-1){return -1;}
+	return rollArray;
+}
+</script>
+</body>
+</head>
