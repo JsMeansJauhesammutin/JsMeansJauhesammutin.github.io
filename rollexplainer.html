@@ -23,7 +23,7 @@ function rolls(e){
 		if(mode==0){
 			roll=turnIntoArray(document.getElementById("rolls").value,rollLength);
 			if(roll==-1){
-				return;
+				return -1;
 			}
 			for(i=0;i<rollLength;i++){
 				if(roll[i]==1||roll[i]==10||roll[i]==5){
@@ -33,22 +33,22 @@ function rolls(e){
 				}
 			}
 			if(secondRollLength==0&mode==1){mode=2;}
-			if(mode>0){return;}
+			if(mode>0){return 1;}
 		}
 		if(mode==1){
 			secondRoll=turnIntoArray(document.getElementById("rolls").value,secondRollLength);
 			if(secondRoll==-1){
-				return;
+				return -1;
 			}
 			if(thirdRollLength>0){
 				mode=2;
-				return;
+				return 1;
 			}
 		}
 		if(mode==2){
 			thirdRoll=turnIntoArray(document.getElementById("rolls").value,thirdRollLength);
 			if(thirdRoll==-1){
-				return;
+				return -1;
 			}
 		}
 		mode=3;
@@ -74,7 +74,9 @@ function rolls(e){
 	}
 }
 function press(e){
-	rolls(e);
+	if(rolls(e)==1){
+		document.getElementById("rolls").value="";
+	};
 	if(mode==1){
 		if(secondRollLength==1){
 			document.getElementById("instructions").innerHTML="Roll a d5 and enter the result."
