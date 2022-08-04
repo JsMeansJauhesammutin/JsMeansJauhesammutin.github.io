@@ -1,0 +1,104 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Puzzle, let's go!</title>
+<body>
+<canvas id="canvasId" width="480" height="480"></canvas> </br>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var boardWidth=3;
+var boardHeight=3;
+var tileSize=160;
+var board=new Array(boardWidth);
+var solved=true;
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight)
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=i*3+j;
+	}
+}
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function draw(){
+	ctx.fillStyle="orange";
+	ctx.fillRect(0,0,boardWidth*tileSize,boardHeight*tileSize);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			ctx.fillStyle="yellow";
+			if(board[i][j]==4){ctx.fillStyle="red";}
+			ctx.fillRect(i*tileSize+tileSize/10,j*tileSize+tileSize/10,tileSize/5*4,tileSize/5*4);
+			ctx.fillStyle="red";
+			ctx.strokeStyle="black";
+			var x=Math.floor(board[i][j]/3);
+			var y=board[i][j]%3;
+			if(board[i][j]!=4){
+				ctx.fillRect(i*tileSize+tileSize/2,j*tileSize+tileSize/2,(bol(x+y<=1)-bol(x+y>=3))*tileSize/5*2,(bol(x+y<=1)-bol(x+y>=3))*tileSize/5*2);
+				ctx.fillRect(i*tileSize+tileSize/2,j*tileSize+tileSize/2,(bol(x-y<=-1)-bol(x-y>=1))*tileSize/5*2,-(bol(x-y<=-1)-bol(x-y>=1))*tileSize/5*2);
+			}
+			if(board[i][j]==4&solved){
+				ctx.fillStyle="#AA0000";
+				ctx.fillRect(i*tileSize+tileSize/10*3,j*tileSize+tileSize/10*3,tileSize/5*2,tileSize/5*2);
+				ctx.fillStyle="black"
+				ctx.fillText("Scramble!",i*tileSize+tileSize/2-ctx.measureText("Scramble!").width/2,j*tileSize+tileSize/2)
+			}
+		}
+	}
+}
+function press(a,b){
+	var x=-Math.floor(board[a][b]/3)+1;
+	var y=-(board[a][b]%3)+1;
+	var placeholder=safeLook(a+x,b+y);
+	if(placeholder==-1||safeLook(a+2*x,b+2*y)==-1){return;}
+	safeSet(a+x,b+y,safeLook(a+2*x,b+2*y));
+	safeSet(a+2*x,b+2*y,placeholder);
+}
+function scramble(){
+	for(k=0;k<1000;k++){
+		press(Math.floor(Math.random()*3),Math.floor(Math.random()*3));
+	}
+	testSolve();
+	draw();
+}
+function testSolve(){
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(board[i][j]!=i*3+j){
+				solved=false;
+				return;
+			}
+		}
+	}
+	solved=true;
+}
+function safeLook(a,b){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){return (board[(a+boardWidth)%boardWidth][(b+boardHeight)%boardHeight])*0-1;}
+	return board[a][b];
+}
+function safeSet(a,b,c){
+	board[(a+boardWidth)%boardWidth][(b+boardHeight)%boardHeight]=c;
+}
+draw();
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	tileX=(x-x%tileSize)/tileSize;
+	tileY=(y-y%tileSize)/tileSize;
+	if(tileX<0||tileY<0||tileX>boardWidth-1||tileY>boardHeight-1||x%tileSize<tileSize/10||y%tileSize<tileSize/10||x%tileSize>tileSize/5*4||y%tileSize>tileSize/5*4){
+		return;
+	}
+	if(solved&tileX==1&tileY==1&x%tileSize>tileSize/10*3&y%tileSize>tileSize/10*3&x%tileSize<tileSize/10*7&y%tileSize<tileSize/10*7){
+		scramble();
+		return;
+	}
+	press(tileX,tileY);
+	testSolve();
+	draw();
+}
+</script>
+</body>
+</head>
