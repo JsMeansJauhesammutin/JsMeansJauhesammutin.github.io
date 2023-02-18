@@ -102,11 +102,11 @@ function menu(){
 	ctx.clearRect(0,0,500,500);
 	ctx.font="20px Arial";
 	ctx.fillStyle=menucolors[bol(chosen==0)];
-	ctx.fillText("Uusi peli",100,100);
+	ctx.fillText("New Game",100,100);
 	ctx.fillStyle=menucolors[bol(chosen==1)];
-	ctx.fillText("Lataa vanha peli salasanan avulla",100,250);
+	ctx.fillText("Load an Old Save (with a Password)",100,250);
 	ctx.fillStyle=menucolors[bol(chosen==2)];
-	ctx.fillText("Vapaa tutkiminen",100,400);
+	ctx.fillText("Exploration Mode",100,400);
 	if(tibenebupre<0){
 		if(keys[3]){
 			chosen++;
@@ -1881,53 +1881,53 @@ function loop(){
 	if(level==0&!betswo&!victory){
 		ctx.font="13px Arial";
 		ctx.fillStyle="#ffffff";
-		ctx.fillText("Hienoa nähdä sinua, poikani.",945*pix-x,pix*24-y);
-		ctx.fillText("Olen miettinyt asioita ja olen kohta valmis eläkkeelle.",941*pix-x,pix*25-y);
-		ctx.fillText("En ole yhtä suurissa voimissa kuin ennen ja pahan ruhtinas",940*pix-x,pix*26-y);
-		ctx.fillText("Vnetalp IV on päässyt kasvattamaan alueitaan. Hänen",941*pix-x,pix*27-y);
-		ctx.fillText("armeijansa uhkaa koko maailmaa. Voita hänet ja kuninkaan",940*pix-x,pix*28-y);
-		ctx.fillText("valtaistuin on sinun. Löydät Vnetalpin sinisestä linnasta.",941*pix-x,pix*29-y);
-		ctx.fillText("Olen antanut sinulle vanhan miekkani, mutta tulet",942*pix-x,pix*30-y);
-		ctx.fillText("löytämään uuden ennen kuin matkasi on ohi.",943*pix-x,pix*31-y);
+		ctx.fillText("Nice to see you, my son.",940*pix-x,pix*24-y);
+		ctx.fillText("I've thought about things, and I'm now ready to retire.",940*pix-x,pix*25-y);
+		ctx.fillText("However, I am weak, and the evil lord",940*pix-x,pix*26-y);
+		ctx.fillText("Vnetalp IV has managed to grow his territories. His",940*pix-x,pix*27-y);
+		ctx.fillText("army threatens the entire world. Defeat him, and my throne",940*pix-x,pix*28-y);
+		ctx.fillText("will be yours. You'll find Vnetalp IV in his Blue Castle.",940*pix-x,pix*29-y);
+		ctx.fillText("I've given you my old sword, but you will find a new one",940*pix-x,pix*30-y);
+		ctx.fillText("before your journey is over.",940*pix-x,pix*31-y);
 	}
 	else if(level==0&betswo&!victory){
 		ctx.font="16px Arial";
 		ctx.fillStyle="#ffffff";
-		ctx.fillText("Hienoa, olet löytänyt oman miekkasi. Voita vielä",940*pix-x,pix*27-y);
-		ctx.fillText("Vnetalp IV ja valtaistuin on sinun.",944*pix-x,pix*28-y);
+		ctx.fillText("It seems like you've found your sword!",940*pix-x,pix*27-y);
+		ctx.fillText("Defeat Vnetalp IV, and this throne will be yours.",940*pix-x,pix*28-y);
 	}
 	else if(level==0&victory){
 		ctx.font="13px Arial";
 		ctx.fillStyle="#ffffff";
-		ctx.fillText("Valtaistuin on nyt sinun, sillä olen nyt vetäytynyt eläkkeelle.",939*pix-x,pix*24-y);
-		ctx.fillText("Kun luet tätä, lomailen Suurella aavikolla. Toivottavasti",940*pix-x,pix*25-y);
-		ctx.fillText("siellä ei ole liikaa itikoita, sillä olen kuullut, että",941*pix-x,pix*26-y);
-		ctx.fillText("niitä on siellä. Nyt kun olet kuningas, olet saanut kuninkaallisen",939*pix-x,pix*27-y);
-		ctx.fillText("voiman. Paina alas ja voit kaivaa oranssimustaan kovaan kiveen.",939*pix-x,pix*28-y);
-		ctx.fillText("Voit rikkoa kovaa oranssimustaa kiveä myös päällä.",941*pix-x,pix*29-y);
+		ctx.fillText("The throne is yours; I've retired.",940*pix-x,pix*24-y);
+		ctx.fillText("When you're reading this, I'm taking a vacatation at",940*pix-x,pix*25-y);
+		ctx.fillText("the Great Desert. Hopefully there won't be too many",940*pix-x,pix*26-y);
+		ctx.fillText("mosquitoes there. Now that you're the king, you've",940*pix-x,pix*27-y);
+		ctx.fillText("gained a royal power. Press down, and you can dig through orange-black stone.",940*pix-x,pix*28-y);
+		ctx.fillText("You can also break the stone with your head.",940*pix-x,pix*29-y);
 	}
 	if(level==0){
 		ctx.font="13px Arial";
 		ctx.fillStyle="black";
-		ctx.fillText("Hyvää päivää, rakas poikani.",90*pix-x,pix*33-y);
+		ctx.fillText("Have a good day, my dear son!",90*pix-x,pix*33-y);
 	}
 	if(level==1&betswo){
-		ctx.font="30px Arial";
+		ctx.font="25px Arial";
 		ctx.fillStyle="black";
-		ctx.fillText("Torin päässä on salaisuus.",20*pix-x,pix*620-y);
+		ctx.fillText("There's a secret at the end of the marketplace.",16*pix-x,pix*620-y);
 	}
 	if(level==11&victory){
 		ctx.font="13px Arial";
 		ctx.fillStyle="black";
-		ctx.fillText("Kuka olisikaan aavistanut, että eläke on näin hauskaa.",91*pix-x,pix*25-y);
-		ctx.fillText("Rakastan tätä lämpöä, vesikin melkein poltaa. Nämä",91*pix-x,pix*26-y);
-		ctx.fillText("itikat ovat kyllä rasittavia.",96*pix-x,pix*27-y);
-		ctx.fillText("Oletko kuullut huhua, että suuren kanjoniin on haudattu linna?.",90*pix-x,pix*28-y);
+		ctx.fillText("Who could've guessed that retirement can be this fun?",87*pix-x,pix*25-y);
+		ctx.fillText("I love the heat and the warm water!",87*pix-x,pix*26-y);
+		ctx.fillText("These mosquitoes are a bit annoying, though.",87*pix-x,pix*27-y);
+		ctx.fillText("Have you heard? According to the latest hearsay, there's a castle buried in the Great Canyon.",87*pix-x,pix*28-y);
 	}
 	if(level==23&!betswo){
 		ctx.font="13px Arial";
 		ctx.fillStyle="black";
-		ctx.fillText("Kivi vaikuttaa liian kovalta, ehkä tarvitset paremman miekan murtaaksesi sen?.",20*pix-x,pix*54-y);
+		ctx.fillText("The stone seems to hard. Maybe you'll need a better sword to break it?.",20*pix-x,pix*54-y);
 	}
 	ctx.fillStyle="red";
 	if(powr==1){
@@ -2006,10 +2006,10 @@ function loop(){
 		ctx.font="50px Arial";
 		ctx.fillStyle="black"
 		if(level==24){
-			ctx.fillText("Maailma pelastettu!",50,260);
+			ctx.fillText("You saved the world!",50,260);
 		}
 		else{
-			ctx.fillText("Läpäisit tason!",100,260);
+			ctx.fillText("Level Complete!",100,260);
 		}
 		ctx.font="15px Arial";
 		ctx.fillText(coins,480-(""+coins).length*10-220,308);
@@ -2034,7 +2034,7 @@ function loop(){
 		ctx.clearRect(0,0,500,500);
 		ctx.font="30px Arial";
 		ctx.fillStyle="black"
-		ctx.fillText("Läpäisit tason salaisen reitin kautta!",0,260);
+		ctx.fillText("You exited through the secret exit!",0,260);
 		ctx.font="15px Arial";
 		ctx.fillText(coins,480-(""+coins).length*10-220,308);
 		ctx.fillStyle="yellow";
