@@ -19,9 +19,10 @@ var solved=true;
 for(i=0;i<boardWidth;i++){
 	board[i]=new Array(boardHeight)
 	for(j=0;j<boardHeight;j++){
-		board[i][j]=1;
+		board[i][j]=0;
 	}
 }
+board[0][0]=1;
 function draw(){
 	ctx.fillStyle="orange";
 	ctx.fillRect(0,0,boardWidth*tileSize,boardHeight*tileSize);
