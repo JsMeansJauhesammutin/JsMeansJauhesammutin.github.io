@@ -5,7 +5,7 @@
 <title>Epic Puzzle, let's go!</title>
 <body>
 <canvas id="canvasId" width="480" height="480"></canvas> </br>
-<input type="button" id="but0" value="Switch Mode" onmousedown="editmode=!editmode;">
+<input type="button" id="but0" value="Switch Mode" onmousedown="switchmode();">
 <script text="text/javascript">
 var canvasElement=document.getElementById("canvasId");
 var ctx=canvasElement.getContext("2d");
@@ -24,8 +24,13 @@ for(i=0;i<boardWidth;i++){
 		board[i][j]=1;
 	}
 }
+function switchmode(){
+	editmode=!editmode;
+	draw();
+}
 function draw(){
 	ctx.fillStyle="orange";
+	if(editmode){ctx.fillStyle="lightblue";}
 	ctx.fillRect(0,0,boardWidth*tileSize,boardHeight*tileSize);
 	for(i=0;i<boardWidth;i++){
 		for(j=0;j<boardHeight;j++){
