@@ -1,0 +1,57 @@
+function solveAttempt(){
+	var resulting="";
+	for(i=0;i<2000;i++){
+		var x=Math.floor(Math.random()*boardWidth);
+		var y=Math.floor(Math.random()*boardHeight);
+		if(board[x][y]==-1){
+			continue;
+		}
+		var dx=Math.floor(Math.random()*2)*2-1;
+		var dy=0;
+		if(Math.random()<0.5){
+			dx=0;
+			dy=Math.floor(Math.random()*2)*2-1;
+		}
+		if(legal(x,y,x+dx,y+dy)){
+			movePiece(x,y,x+dx,y+dy);
+			resulting+="("+x+", "+y+" to "+(x+dx)+", "+(y+dy)+")";
+		}
+	}
+	return resulting;
+}
+function solve(attes){
+    for(atte=0;atte<attes;atte++){
+        resetBoardAlt();
+        var resultinging=solveAttempt();
+        if(testWin()){
+            draw();
+            return resultinging;
+        }
+    }
+    draw();
+}
+function testWin(){
+    for(i=0;i<boardWidth;i++){
+        for(j=0;j<boardHeight;j++){
+            if(i==3&j==3&board[i][j]!=1){
+                return false;
+            }
+            if((i!=3||j!=3)&board[i][j]!=-1){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+function resetBoardAlt(){
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			board[i][j]=boardBackup[i][j];
+		}
+	}
+	turnPart=0;
+	draw();
+	turnNumber=0;
+	document.getElementById("turn").innerHTML="It's turn number "+turnNumber;
+}
+//(3, 4 to 2, 4)(3, 2 to 2, 2)(2, 4 to 2, 3)(1, 6 to 2, 6)(2, 6 to 1, 6)(2, 0 to 3, 0)(3, 1 to 3, 2)(1, 4 to 1, 5)(2, 1 to 3, 1)(0, 3 to 0, 2)(1, 5 to 1, 4)(2, 2 to 1, 2)(4, 3 to 3, 3)(2, 3 to 1, 3)(1, 2 to 2, 2)(1, 3 to 1, 2)(2, 2 to 3, 2)(3, 2 to 3, 3)

@@ -1,0 +1,87 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Puzzle, let's go!</title>
+<body>
+<canvas id="canvasId" width="480" height="480"></canvas> </br>
+<input type="button" id="but0" value="Switch Mode" onmousedown="switchmode();">
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var torusmode=false;
+var boardWidth=4;
+var boardHeight=4;
+var tileSize=120;
+var board=new Array(boardWidth);
+var col=new Array("lightgray","green","red","white","lightgreen","pink");
+var types=3;
+var solved=true;
+var editmode=false;
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight)
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=1;
+	}
+}
+function switchmode(){
+	editmode=!editmode;
+	draw();
+}
+function draw(){
+	ctx.fillStyle="orange";
+	if(editmode){ctx.fillStyle="lightblue";}
+	ctx.fillRect(0,0,boardWidth*tileSize,boardHeight*tileSize);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			ctx.fillStyle=col[board[i][j]];
+			ctx.fillRect(i*tileSize+tileSize/10,j*tileSize+tileSize/10,tileSize/5*4,tileSize/5*4);
+		}
+	}
+}
+function edit(a,b){
+	safeIncrement(a,b,1);
+}
+function press(a,b){
+	var c=(types*2+(board[a][b]+1)%types-1)%(types*2);
+	safeIncrement(a,b,c);
+	safeIncrement(a-1,b,c);
+	safeIncrement(a+1,b,c);
+	safeIncrement(a,b-1,c);
+	safeIncrement(a,b+1,c);
+}
+function scramble(){
+	for(k=0;k<1000;k++){
+		press(Math.floor(Math.random()*4),Math.floor(Math.random()*4));
+	}
+	draw();
+}
+function safeIncrement(a,b,c){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){
+		if(torusmode){
+			board[(a+boardWidth)%boardWidth][(b+boardHeight)%boardHeight]=(board[(a+boardWidth)%boardWidth][(b+boardHeight)%boardHeight]+c)%(types*2);
+			return;
+		}
+		else{
+			return;
+		}
+	}
+	board[a][b]=(board[a][b]+c)%(types*2);
+}
+draw();
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	tileX=(x-x%tileSize)/tileSize;
+	tileY=(y-y%tileSize)/tileSize;
+	if(tileX<0||tileY<0||tileX>boardWidth-1||tileY>boardHeight-1||x%tileSize<tileSize/10||y%tileSize<tileSize/10){
+		return;
+	}
+	if(editmode){edit(tileX,tileY);}
+	else{press(tileX,tileY);}
+	draw();
+}
+</script>
+</body>
+</head>
