@@ -1,0 +1,205 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Boardgame, let's go!</title>
+<body>
+<canvas id="canvasId" width="600" height="600"></canvas>
+<input type="button" id="reset" value="Reset board" onmousedown="resetBoard();">
+<h1 id="turn">It's turn number 0</h1>
+<h3></h3>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var pieceTypeAmount=3;
+var win=false;
+var boardWidth=7;
+var boardHeight=7;
+var squareSideLength=Math.floor(Math.min(600/boardWidth,600/boardHeight));
+var lastClickX=0;
+var lastClickY=0;
+var stroke;
+ctx.lineWidth=squareSideLength/5;
+var board=new Array(boardWidth);
+var boardBackup=new Array(boardWidth);
+var boardSetup="0005202520520525000200520502005220000050000000000";
+var num="0123456"
+var turnNumber=0;
+var turnPart=0;
+var col=new Array("white","yellow","#FFD580","black","purple","darkred");
+var playerColors=new Array("black","white");
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight);
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=-1;
+		board[i][j]=num.indexOf(boardSetup.charAt(i*boardHeight+j))-1;
+	}
+}
+for(i=0;i<boardWidth;i++){
+	boardBackup[i]=new Array(boardHeight);
+}
+function generate(){
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			board[i][j]=-1;
+		}
+	}
+	board[Math.floor(boardWidth/2)][Math.floor(boardHeight/2)]=Math.floor(Math.random()*2);
+	for(i=0;i<boardWidth*boardHeight*5;i++){
+		var x=Math.floor(Math.random()*boardWidth);
+		var y=Math.floor(Math.random()*boardHeight);
+		if(board[x][y]==-1){
+			continue;
+		}
+		var dx=Math.floor(Math.random()*2)*2-1;
+		var dy=0;
+		if(Math.random()<0.5){
+			dx=0;
+			dy=Math.floor(Math.random()*2)*2-1;
+		}
+		if(safeLook(x+dx,y+dy)!=-1){
+			continue;
+		}
+		if(board[x][y]%pieceTypeAmount==1&safeLook(x+2*dx,y+2*dy)!=-1){
+			continue;
+		}
+		board[x+dx][y+dy]=board[x][y];
+		if(board[x][y]%pieceTypeAmount==0){
+			board[x][y]=(1-Math.floor(board[x][y]/pieceTypeAmount))*pieceTypeAmount+Math.floor(Math.random()*2);
+		}
+		else if(board[x][y]%pieceTypeAmount==1){
+			board[x+2*dx][y+2*dy]=(1-Math.floor(board[x][y]/pieceTypeAmount))*pieceTypeAmount+Math.floor(Math.random()*2);
+			board[x][y]=-1;
+		}
+	}
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			boardBackup[i][j]=board[i][j];
+		}
+	}
+	draw();
+}
+generate();
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function resetBoard(){
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			board[i][j]=boardBackup[i][j];
+		}
+	}
+	turnPart=0;
+	draw();
+	turnNumber=0;
+	document.getElementById("turn").innerHTML="It's turn number "+turnNumber;
+}
+function draw(){
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,boardWidth*squareSideLength,boardHeight*squareSideLength);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if((i+j)%2==1){
+				ctx.fillStyle="darkgrey";
+			}
+			else{
+				ctx.fillStyle="grey";
+			}
+			ctx.fillRect(i*squareSideLength,j*squareSideLength,squareSideLength-1,squareSideLength-1);
+			if(board[i][j]>=0){
+				ctx.fillStyle=col[board[i][j]];
+				ctx.fillRect((i+0.125)*squareSideLength,(j+0.125)*squareSideLength,0.75*squareSideLength-1,0.75*squareSideLength-1);
+			}
+		}
+	}
+}
+function safeLook(a,b){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){return -2;}
+	return board[a][b];
+}
+function drawMoves(a,b){
+	ctx.fillStyle="rgba(0,255,0,0.5)"
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(legal(a,b,i,j)){
+				ctx.fillRect(i*squareSideLength+7,j*squareSideLength+7,squareSideLength-15,squareSideLength-15);
+			}
+		}
+	}
+	ctx.fillStyle="rgba(0,0,255,0.5)";
+	ctx.fillRect(a*squareSideLength+7,b*squareSideLength+7,squareSideLength-15,squareSideLength-15);
+}
+function legal(a,b,c,d){
+	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
+	var piece=board[a][b];
+	if(piece%pieceTypeAmount==0){
+		if(Math.abs(c-a)+Math.abs(d-b)==1&board[c][d]>-1&Math.floor(board[a][b]/pieceTypeAmount)!=Math.floor(board[c][d]/pieceTypeAmount)){
+			return true;
+		}
+	}
+	if(piece%pieceTypeAmount==1){
+		if(Math.abs(c-a)+Math.abs(d-b)==1&board[c][d]==-1&safeLook(2*a-c,2*b-d)>-1&Math.floor(board[a][b]/pieceTypeAmount)!=Math.floor(safeLook(2*a-c,2*b-d)/pieceTypeAmount)){
+			return true;
+		}
+	}
+	return false;
+}
+function testwin(){
+	return false;
+}
+function movePiece(a,b,c,d){
+	board[c][d]=board[a][b];
+	board[a][b]=-1;
+	if(board[c][d]%pieceTypeAmount==1){
+		board[a*2-c][b*2-d]=-1;
+	}
+	if(board[c][d]%pieceTypeAmount==2){
+
+	}
+}
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	if(win){
+		return;
+	}
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	x=(x-x%squareSideLength)/squareSideLength;
+	y=(y-y%squareSideLength)/squareSideLength;
+	if(x<0||y<0||x>boardWidth-1||y>boardHeight-1){
+		return;
+	}
+	if(turnPart==0&board[x][y]>-1){
+		lastClickX=x;
+		lastClickY=y;
+		turnPart=1;
+		draw();
+		drawMoves(lastClickX,lastClickY)
+	}
+	else if(turnPart==1){
+		if(legal(lastClickX,lastClickY,x,y)){
+			movePiece(lastClickX,lastClickY,x,y);
+			turnPart=0;
+			turnNumber++;
+			document.getElementById("turn").innerHTML="It's turn number "+turnNumber;
+			draw();
+			testwin();
+		}
+		else{
+			draw();
+			if(lastClickX==x&lastClickY==y){
+				turnPart=0;
+				return;
+			}
+			else if(board[x][y]!=-1){
+				lastClickX=x;
+				lastClickY=y;
+			}
+			drawMoves(lastClickX,lastClickY);
+		}
+	}
+}
+</script>
+</body>
+</head>
