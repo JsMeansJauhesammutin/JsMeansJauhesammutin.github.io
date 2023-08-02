@@ -1,0 +1,296 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Boardgame, let's go!</title>
+<body>
+<canvas id="canvasId" width="600" height="600"></canvas>
+<h1 id="turn">It's turn number 0</h1>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var qwy=1;
+var win=false;
+var boardWidth=10;
+var boardHeight=boardWidth;
+var pix=Math.floor(600/boardWidth);
+var lastClickX=0;
+var lastClickY=0;
+var stroke;
+ctx.lineWidth=pix/5;
+var board=new Array(boardWidth);
+var turn=false;
+var num="0123456"
+var turnNumber=0;
+var vuoro=0;
+var col=new Array("white","black");
+var isAI=new Array(false, false);
+var movedelay=1;
+var thickness=1;
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight)
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=-1;
+		if(j<thickness){board[i][j]=1;}
+		if(j>boardHeight-thickness-1){board[i][j]=0;}
+	}
+}
+var playerColors=new Array("black","white");
+var depth=4;
+var iteratives=new Array(depth+1);
+var simulatedBoards=new Array(depth+1);
+for(i=0;i<=depth;i++){
+	simulatedBoards[i]=new Array(boardWidth);
+	for(j=0;j<boardWidth;j++){
+		simulatedBoards[i][j]=new Array(boardHeight);
+	}
+}
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function draw(){
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,boardWidth*pix,boardHeight*pix);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if((i+j)%2==1){
+				ctx.fillStyle="darkgrey";
+			}
+			else{
+				ctx.fillStyle="grey";
+			}
+			ctx.fillRect(i*pix,j*pix,pix,pix);
+			if(board[i][j]%qwy==0){
+				ctx.fillStyle=col[Math.floor(board[i][j]/qwy)]
+				ctx.beginPath();
+				ctx.moveTo(i*pix+pix/2,j*pix+pix/5);
+				ctx.lineTo(i*pix+pix/5,j*pix+pix/10*9);
+				ctx.lineTo(i*pix+pix/5*4,j*pix+pix/10*9);
+				ctx.closePath();
+				ctx.fill();
+				ctx.fillRect(i*pix+pix/10*3,j*pix+pix/5,pix/5*2,pix/10*3);
+				ctx.fillRect(i*pix+pix/10*4.5,j*pix+pix/10,pix/10,pix/10);
+			}
+		}
+	}
+}
+function safeLook(a,b){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){return -2;}
+	return board[a][b];
+}
+function drawMoves(a,b){
+	ctx.fillStyle="rgba(0,255,0,0.5)"
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(legal(a,b,i,j)){
+				if(safeLook(i,j)>-1){ctx.fillStyle="rgba(255,0,0,0.5)"}
+				ctx.fillRect(i*pix+7,j*pix+7,pix-15,pix-15);
+				ctx.fillStyle="rgba(0,255,0,0.5)"
+			}
+		}
+	}
+	ctx.fillStyle="rgba(0,0,255,0.5)";
+	ctx.fillRect(a*pix+7,b*pix+7,pix-15,pix-15);
+}
+function legal(a,b,c,d){
+	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
+	var piece=board[a][b];
+	if(Math.floor(safeLook(c,d)/qwy)==bol(turn)){return false;}
+	if(piece%qwy==0){
+		if(d-b==bol(turn)*2-1&Math.abs(a-c)<2){
+			return true;
+		}
+	}
+	return false;
+}
+function simLegal(a,b,c,d,simulatedTurn,currentDepth){
+	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
+	if(simulatedBoards[currentDepth][c][d]==bol(simulatedTurn)||simulatedBoards[currentDepth][a][b]!=bol(simulatedTurn)){return false;}
+	if(d-b==bol(simulatedTurn)*2-1&Math.abs(a-c)<2){
+		return true;
+	}
+	return false;
+}
+function testwin(){
+	var row=bol(!turn)*(boardHeight-1);
+	for(i=0;i<boardWidth;i++){
+		if(board[i][row]==bol(!turn)){
+			return true;
+		}
+	}
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(board[i][j]==bol(turn)){
+				return false;
+			}
+		}
+	}
+	return true;
+}
+function winbehaviour(){
+	if(testwin()){
+		win=true;
+		document.getElementById("turn").innerHTML+=" and "+playerColors[bol(turn)]+" has won";
+	}
+}
+function isgamewon(simulatedTurn,currentDepth){
+	var row=bol(simulatedTurn)*(boardHeight-1);
+	for(i=0;i<boardWidth;i++){
+		if(simulatedBoards[currentDepth][i][row]==bol(simulatedTurn)){
+			return true;
+		}
+	}
+	return false;
+}
+function evaluate(simulatedTurn){
+	var total=0;
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(simulatedBoards[depth][i][j]==0){
+				total+=boardHeight+boardHeight-1-j;
+			}
+			if(simulatedBoards[depth][i][j]==1){
+				total-=boardHeight+j;
+			}
+		}
+	}
+	return total;
+}
+draw();
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	if(win||isAI[bol(turn)]){
+		return;
+	}
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	x=(x-x%pix)/pix;
+	y=(y-y%pix)/pix;
+	if(x<0||y<0||x>boardWidth-1||y>boardHeight-1){
+		return;
+	}
+	if(Math.floor(safeLook(x,y)/qwy)==bol(turn)&vuoro==0){
+		lastClickX=x;
+		lastClickY=y;
+		vuoro=1;
+		draw();
+		drawMoves(lastClickX,lastClickY)
+	}
+	else if(vuoro==1){
+		if(legal(lastClickX,lastClickY,x,y)){
+			board[x][y]=board[lastClickX][lastClickY];
+			board[lastClickX][lastClickY]=-1;
+			if(Math.abs(x-lastClickX)==2&Math.abs(y-lastClickY)==2){
+				board[(x+lastClickX)/2][(y+lastClickY)/2]=-1;
+			}
+			vuoro=0;
+			turn=!turn;
+			turnNumber++;
+			document.getElementById("turn").innerHTML="It's turn number "+turnNumber;
+			draw();
+			winbehaviour();
+			document.getElementById("turn").innerHTML+=".";
+		}
+		else{
+			if(Math.floor(safeLook(x,y)/qwy)==bol(turn)){
+				lastClickX=x;
+				lastClickY=y;
+			}
+			draw();
+			drawMoves(lastClickX,lastClickY)
+		}
+	}
+	if(isAI[bol(turn)]&!win){
+		setTimeout(AImove,movedelay);
+	}
+}
+function AImove(){
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			simulatedBoards[0][i][j]=board[i][j];
+		}
+	}
+	minmax(0,turn);
+	turn=!turn;
+	turnNumber++;
+	document.getElementById("turn").innerHTML="It's turn number "+turnNumber;
+	winbehaviour();
+	document.getElementById("turn").innerHTML+=".";
+	if(isAI[bol(turn)]&!win){
+		setTimeout(AImove,movedelay);
+	}
+}
+function minmax(currentDepth,simulatedTurn){
+	if(currentDepth==depth){
+		return evaluate(simulatedTurn);
+	}
+	var maxormin=1000;
+	var bestIteration=30;
+	for(iteratives[currentDepth]=0;iteratives[currentDepth]<boardWidth*boardHeight*3;iteratives[currentDepth]++){
+		var startIteration=Math.floor(iteratives[currentDepth]/3);
+		var moveIteration=iteratives[currentDepth]%3;
+		var fromI=Math.floor(startIteration/boardHeight);
+		var fromJ=startIteration%boardHeight;
+		var toI=fromI+moveIteration-1;
+		var toJ=fromJ+bol(simulatedTurn)*2-1;
+		if(simLegal(fromI,fromJ,toI,toJ,simulatedTurn,currentDepth)){
+			for(i=0;i<boardWidth;i++){
+				for(j=0;j<boardHeight;j++){
+					simulatedBoards[currentDepth+1][i][j]=simulatedBoards[currentDepth][i][j];
+				}
+			}
+			simulatedBoards[currentDepth+1][toI][toJ]=simulatedBoards[currentDepth+1][fromI][fromJ];
+			simulatedBoards[currentDepth+1][fromI][fromJ]=-1;
+			if(isgamewon(simulatedTurn,currentDepth+1)){
+				var minmaxresult=500-bol(simulatedTurn)*1000+currentDepth*(2*bol(simulatedTurn)-1);
+			}
+			else{
+				var minmaxresult=minmax(currentDepth+1,!simulatedTurn);
+			}
+			if(maxormin==1000){
+				maxormin=minmaxresult;
+				bestIteration=iteratives[currentDepth];
+			}
+			if(maxormin==minmaxresult&currentDepth==0){
+				if(Math.random()<0.03){
+					bestIteration=iteratives[currentDepth];
+				}
+			}
+			if(simulatedTurn){
+				if(maxormin>minmaxresult){
+					bestIteration=iteratives[currentDepth];
+					maxormin=minmaxresult;
+				}
+			}
+			else{
+				if(maxormin<minmaxresult){
+					bestIteration=iteratives[currentDepth];
+					maxormin=minmaxresult;
+				}
+			}
+		}
+		
+	}
+	if(maxormin==1000){
+		maxormin=bol(simulatedTurn)*1000-500;
+	}
+	if(currentDepth==0){
+		startIteration=Math.floor(bestIteration/3);
+		moveIteration=bestIteration%3;
+		fromI=Math.floor(startIteration/boardHeight);
+		fromJ=startIteration%boardHeight;
+		toI=fromI+moveIteration-1;
+		toJ=fromJ+bol(simulatedTurn)*2-1;
+		board[toI][toJ]=board[fromI][fromJ];
+		board[fromI][fromJ]=-1;
+		draw();
+	}
+	return maxormin;
+}
+if(isAI[bol(turn)]){
+	setTimeout(AImove,movedelay);
+}
+</script>
+</body>
+</head>
