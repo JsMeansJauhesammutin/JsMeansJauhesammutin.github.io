@@ -11,7 +11,7 @@ var canvasElement=document.getElementById("canvasId");
 var ctx=canvasElement.getContext("2d");
 var qwy=1;
 var win=false;
-var boardWidth=10;
+var boardWidth=6;
 var boardHeight=boardWidth;
 var pix=Math.floor(600/boardWidth);
 var lastClickX=0;
@@ -36,7 +36,7 @@ for(i=0;i<boardWidth;i++){
 	}
 }
 var playerColors=new Array("black","white");
-var depth=4;
+var depth=5;
 var iteratives=new Array(depth+1);
 var simulatedBoards=new Array(depth+1);
 for(i=0;i<=depth;i++){
