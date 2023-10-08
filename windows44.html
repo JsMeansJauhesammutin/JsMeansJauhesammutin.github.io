@@ -1,0 +1,142 @@
+<!DOCTYPE=html>
+<head>
+<style>
+</style>
+<title>Epic Boardgame, let's go!</title>
+<body>
+<canvas id="canvasId" width="600" height="600"></canvas>
+<h3></h3>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasId");
+var ctx=canvasElement.getContext("2d");
+var pieceTypeAmount=3;
+var win=false;
+//even only!
+var boardWidth=4;
+var boardHeight=4;
+var lastClickX=0;
+var lastClickY=0;
+var stroke;
+ctx.lineWidth=squareSideLength/5;
+var board=new Array(boardWidth);
+var boardBackup=new Array(boardWidth);
+var boardSetup="0005202520520525000200520502005220000050000000000";
+var num="0123456"
+var turnNumber=0;
+var turnPart=0;
+var col=new Array("blue","red","green","yellow");
+var playerColors=new Array("black","white");
+var directions=new Array(0,1,0,-1);
+var squareSideLength=Math.floor(Math.min(600/boardWidth,600/boardHeight));
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight);
+	for(j=0;j<boardHeight;j++){
+		//board[i][j]=Math.floor(Math.random()*4);
+		if(i<boardWidth/2){
+			board[i][j]=0;
+			if(j<boardWidth/2){board[i][j]=1;}
+		}
+		else{
+			board[i][j]=3;
+			if(j<boardWidth/2){board[i][j]=2;}
+		}
+	}
+}
+for(i=0;i<boardWidth;i++){
+	boardBackup[i]=new Array(boardHeight);
+}
+function bol(a){
+	if(a){return 1;}
+	return 0;
+}
+function draw(){
+	ctx.fillStyle="black";
+	ctx.fillRect(0,0,boardWidth*squareSideLength,boardHeight*squareSideLength);
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			ctx.fillStyle=col[board[i][j]];
+			ctx.fillRect(i*squareSideLength,j*squareSideLength,squareSideLength,squareSideLength);
+		}
+	}
+}
+draw();
+function safeLook(a,b){
+	if(a<0||b<0||a>boardWidth-1||b>boardHeight-1){return -2;}
+	return board[a][b];
+}
+function drawMoves(a,b){
+	ctx.fillStyle="rgba(0,255,0,0.5)"
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			if(legal(a,b,i,j)){
+				ctx.fillRect(i*squareSideLength+7,j*squareSideLength+7,squareSideLength-15,squareSideLength-15);
+			}
+		}
+	}
+	ctx.fillStyle="rgba(0,0,255,0.5)";
+	ctx.fillRect(a*squareSideLength+7,b*squareSideLength+7,squareSideLength-15,squareSideLength-15);
+}
+function legal(a,b,c,d){
+	if(safeLook(a,b)==-2||safeLook(c,d)==-2){return false;}
+	var piece=board[a][b];
+	if(piece%pieceTypeAmount==0){
+		if(Math.abs(c-a)+Math.abs(d-b)==1&board[c][d]>-1&Math.floor(board[a][b]/pieceTypeAmount)!=Math.floor(board[c][d]/pieceTypeAmount)){
+			return true;
+		}
+	}
+	if(piece%pieceTypeAmount==1){
+		if(Math.abs(c-a)+Math.abs(d-b)==1&board[c][d]==-1&safeLook(2*a-c,2*b-d)>-1&Math.floor(board[a][b]/pieceTypeAmount)!=Math.floor(safeLook(2*a-c,2*b-d)/pieceTypeAmount)){
+			return true;
+		}
+	}
+	return false;
+}
+function testwin(){
+	return false;
+}
+function press(a,b){
+	var dir=board[a][b];
+	var up=directions[dir];
+	var right=directions[(dir+1)%4];
+	if(safeLook(a+2*right,b+2*up)>=0){
+		var holder=board[a+right][b+up];
+		board[a+right][b+up]=board[a+2*right][b+2*up];
+		board[a+2*right][b+2*up]=holder;
+		ctx.fillStyle=col[board[a+right][b+up]];
+		ctx.fillRect((a+right)*squareSideLength,(b+up)*squareSideLength,squareSideLength,squareSideLength);
+		ctx.fillStyle=col[board[a+2*right][b+2*up]];
+		ctx.fillRect((a+2*right)*squareSideLength,(b+2*up)*squareSideLength,squareSideLength,squareSideLength);
+	}
+}
+function pressnodraw(a,b){
+	var dir=board[a][b];
+	var up=directions[dir];
+	var right=directions[(dir+1)%4];
+	if(safeLook(a+2*right,b+2*up)>=0){
+		var holder=board[a+right][b+up];
+		board[a+right][b+up]=board[a+2*right][b+2*up];
+		board[a+2*right][b+2*up]=holder;
+	}
+}
+canvasElement.addEventListener("mousedown",move);
+function move(e){
+	x=e.x-6+window.pageXOffset;
+	y=e.y-6+window.pageYOffset;
+	x=(x-x%squareSideLength)/squareSideLength;
+	y=(y-y%squareSideLength)/squareSideLength;
+	if(x<0||y<0||x>boardWidth-1||y>boardHeight-1){
+		return;
+	}
+	press(x,y);
+}
+function loopmove(){
+	for(i=0;i<10000;i++){
+		pressnodraw(Math.floor(Math.random()*boardWidth),Math.floor(Math.random()*boardHeight));
+	}
+	draw();
+	//setTimeout(loopmove,10);
+}
+loopmove();
+</script>
+</body>
+</head>
