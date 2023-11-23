@@ -10,6 +10,7 @@ if(canvasElement.getContext){
 }
 var keys=new Array(false,false,false)
 var off=0.5;
+var jumping=false;
 var asapy=40;
 var pix=500/asapy;
 var moy=0;
@@ -19,14 +20,58 @@ var y=270;
 var hahmoz=4;
 var jump=-35;
 var grav=1;
+var extrapoints=0;
 var camera=0;
+var col=new Array("orange","blue","yellow")
+var stored=new Array(asapy+2);
+for(i=0;i<asapy+2;i++){
+	stored[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		stored[i][j]=generate(i,j);
+	}
+}
+clear();
+function generate(a,b){
+	var result=0;
+	if(Math.random()<0.05){
+		result=1;
+	}
+	if(calc(a-1,b)==1&Math.random()<0.4){
+		result=1;
+	}
+	if(calc(a,b-1)==1&Math.random()<0.4){
+		result=1;
+	}
+	if(calc(a,b-1)==1&calc(a-1,b-1)==1){
+		result=calc(a-1,b);
+	}
+	if(result==0&Math.random()<0.01){
+		result=2;
+	}
+	if(result==0&Math.random()<0.01){
+		result=3;
+	}
+	return result;
+}
 function calc(a,b){
-	return ((a*b+b*b+a)%19+(a*a*a)%12+(b*a*a)%5+(a*a+b*b)%4)%5==0;
+	if(a<0||b<0){return 0;}
+	return stored[a%(asapy+2)][b];
 }
 function hitdec(){
-	for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
+    return register(1);
+}
+function clear(){
+	for(i=Math.floor((x-hahmoz)/pix)-1;i<Math.floor((x+hahmoz)/pix)+2;i++){
+    		for(j=Math.floor((y-hahmoz)/pix)-1;j<Math.floor((y+hahmoz)/pix)+1;j++){
+    			stored[i%(asapy+2)][j]=0;
+			stored[i%(asapy+2)][j+2]=1;
+   		}
+	}
+}
+function register(a){
+    for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
     	for(j=Math.floor((y-hahmoz)/pix);j<Math.floor((y+hahmoz)/pix)+1;j++){
-    		if(calc(i,j)){
+    		if(calc(i,j)==a){
             	return true;
             }
    		}
@@ -34,36 +79,40 @@ function hitdec(){
     return false;
 }
 function draw(){
-	ctx.clearRect(0,0,500,500);
-    ctx.fillStyle="red";
-    ctx.fillRect(x-camera-hahmoz,y-hahmoz,hahmoz*2,hahmoz*2);
-    ctx.fillStyle="orange"
-	for(i=Math.floor(camera/pix)-1;i<Math.floor((camera+500)/pix)+1;i++){
+    ctx.clearRect(0,0,500,500);
+    for(i=Math.floor(camera/pix)-1;i<Math.floor((camera+500)/pix)+1;i++){
     	for(j=0;j<asapy;j++){
-    		if(calc(i,j)){
-            	ctx.fillRect(i*pix-off-camera,j*pix-off,pix+off*2,pix+off*2);	
-            }
-   		}
+		var calced=calc(i,j)
+    		if(calced>0){
+			ctx.fillStyle=col[calced-1];
+            		ctx.fillRect(i*pix-off-camera,j*pix-off,pix+off*2,pix+off*2);	
+            	}
+   	}
     }
     ctx.font="50px Arial";
     ctx.fillStyle="black";
-	ctx.fillText("Score: "+Math.round(camera/30),150,50);
+    ctx.fillText("Score: "+Math.round(camera/30+extrapoints),150,50);
+    ctx.fillStyle="red";
+    ctx.fillRect(x-camera-hahmoz,y-hahmoz,hahmoz*2,hahmoz*2);
 }
 function loop(){
 	if(keys[0]){
 		y+=10;
 		if(hitdec()){
 			moy=jump;
+			jumping=true;
 		}
 		y-=10;
 	}
+	else{jumping=false;}
 	if(keys[1]){
 		mox=(mox*5-1)/5;
 	}
 	if(keys[2]){
 		mox=(mox*5+1)/5;
 	}
-	moy+=grav;
+	moy+=grav*(1+(moy<0&!jumping)*1.5);
+	//y+=moy/10/(1+(moy<0&!jumping)*2);
 	y+=moy/10;
 	if(hitdec()){
 		y-=moy/10;
@@ -71,6 +120,9 @@ function loop(){
 	}
 	if(mox>3){
 		mox=3;
+	}
+	if(moy>40){
+		moy=40;
 	}
 	if(mox<-3){
 		mox=-3;
@@ -84,8 +136,23 @@ function loop(){
 	if(mox>0){mox-=0.1;}
 	if(mox<0.1&mox>-0.1){mox=0;}
 	draw();
-    camera+=0.35;
-    if(y-hahmoz-2<0||y+hahmoz+2>500||x<camera||x>camera+500){
+    //camera+=(x-250-camera)/100;
+    var oldcamera=camera;
+    camera+=0.5;
+    if(Math.floor((camera+500)/pix)!=Math.floor((oldcamera+500)/pix)){
+	for(j=0;j<asapy;j++){
+		stored[(Math.floor((camera+500)/pix)+1)%(asapy+2)][j]=generate(Math.floor((camera+500)/pix)+1,j);
+	}
+    }
+    for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
+    	for(j=Math.floor((y-hahmoz)/pix);j<Math.floor((y+hahmoz)/pix)+1;j++){
+    		if(calc(i,j)==3){
+			stored[i%(asapy+2)][j]=0;
+			extrapoints+=5;
+		}
+   	}
+    }
+    if(y-hahmoz-2<0||y+hahmoz+2>500||x<camera||x>camera+500||register(2)){
     	lose(0);
     }
     else{
@@ -101,11 +168,18 @@ function lose(a){
 	}
 	else if(a==50){
 		camera=0;
-        		x=250;
-        		y=270;
+		extrapoints=0;
+        	x=250;
+        	y=270;
 		mox=0;
 		moy=0;
 		setTimeout("lose("+(a+1)+")",10);
+                for(i=0;i<asapy+2;i++){
+			for(j=0;j<asapy;j++){
+				stored[i][j]=generate(i,j);
+			}
+		}
+		clear();
 	}
 	else if(a>50&a<75){
 		draw();
