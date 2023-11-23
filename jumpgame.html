@@ -21,6 +21,7 @@ var hahmoz=4;
 var jump=-35;
 var grav=1;
 var extrapoints=0;
+var highscore=0;
 var camera=0;
 var col=new Array("orange","blue","yellow")
 var stored=new Array(asapy+2);
@@ -89,56 +90,65 @@ function draw(){
             	}
    	}
     }
-    ctx.font="50px Arial";
-    ctx.fillStyle="black";
-    ctx.fillText("Score: "+Math.round(camera/30+extrapoints),150,50);
     ctx.fillStyle="red";
     ctx.fillRect(x-camera-hahmoz,y-hahmoz,hahmoz*2,hahmoz*2);
+    ctx.font="25px Arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Score: "+Math.round(camera/30+extrapoints),0,20);
+    ctx.fillText("High:   "+highscore,0,45);
 }
 function loop(){
 	if(keys[0]){
 		y+=10;
-		if(hitdec()){
-			moy=jump;
+		if(hitdec()&moy>=0){
+			moy=jump-Math.abs(mox)*1.5;
 			jumping=true;
 		}
 		y-=10;
 	}
 	else{jumping=false;}
-	if(keys[1]){
-		mox=(mox*5-1)/5;
-	}
-	if(keys[2]){
-		mox=(mox*5+1)/5;
-	}
-	moy+=grav*(1+(moy<0&!jumping)*1.5);
+	moy+=grav*(1+(moy<0&!jumping)*1.2);
 	//y+=moy/10/(1+(moy<0&!jumping)*2);
 	y+=moy/10;
+	var onground=false;
 	if(hitdec()){
 		y-=moy/10;
+		if(moy>0){
+			y=Math.floor((y+moy/10+hahmoz)/pix)*pix-hahmoz-0.01;
+			onground=true;
+		}
 		moy=0;
 	}
-	if(mox>3){
-		mox=3;
+	if(keys[1]){
+		mox=Math.min((mox*12.5-1)/12.5,-0.16);
+	}
+	if(keys[2]){
+		mox=Math.max((mox*12.5+1)/12.5,0.16);
 	}
 	if(moy>40){
 		moy=40;
-	}
-	if(mox<-3){
-		mox=-3;
 	}
 	x+=mox
 	if(hitdec()){
 		x-=mox
 		mox=0;
 	}
-	if(mox<0){mox+=0.1;}
-	if(mox>0){mox-=0.1;}
-	if(mox<0.1&mox>-0.1){mox=0;}
+	var friction=0.1;
+	if(onground){friction=0.25;}
+	if(mox<0&!keys[1]){mox+=friction;}
+	if(mox>0&!keys[2]){mox-=friction;}
+	if(mox<=friction&mox>=-friction&!keys[1]&!keys[2]){mox=0;}
+	if(mox>2.5){
+		mox=2.5;
+	}
+	if(mox<-2.5){
+		mox=-2.5;
+	}
 	draw();
-    //camera+=(x-250-camera)/100;
     var oldcamera=camera;
+    //camera+=(x-250-camera)/100;
     camera+=0.5;
+    if(camera<0){camera=0;}
     if(Math.floor((camera+500)/pix)!=Math.floor((oldcamera+500)/pix)){
 	for(j=0;j<asapy;j++){
 		stored[(Math.floor((camera+500)/pix)+1)%(asapy+2)][j]=generate(Math.floor((camera+500)/pix)+1,j);
@@ -151,6 +161,9 @@ function loop(){
 			extrapoints+=5;
 		}
    	}
+    }
+    if(Math.round(camera/30+extrapoints)>highscore){
+	highscore=Math.round(camera/30+extrapoints);
     }
     if(y-hahmoz-2<0||y+hahmoz+2>500||x<camera||x>camera+500||register(2)){
     	lose(0);
