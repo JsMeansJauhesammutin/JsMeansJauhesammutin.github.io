@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+canvasElement.height=window.innerHeight-20;
+canvasElement.width=window.innerWidth-20;
+if(canvasElement.getContext){
+	var ctx = canvasElement.getContext("2d");
+}
+var keys=new Array(false,false,false)
+var off=0.5;
+var jumping=false;
+var asapy=40;
+var pix=500/asapy;
+var scale=canvasElement.height/500;
+var asapx=Math.floor(canvasElement.width/canvasElement.height*asapy);
+var moy=0;
+var mox=0;
+var x=250;
+var y=270;
+var hahmoz=4;
+var jump=-35;
+var grav=1;
+var extrapoints=0;
+var highscore=0;
+var camera=0;
+var col=new Array("orange","blue","yellow")
+var stored=new Array(asapx+3);
+for(i=0;i<asapx+3;i++){
+	stored[i]=new Array(asapy);
+	for(j=0;j<asapy;j++){
+		stored[i][j]=generate(i,j);
+	}
+}
+clear();
+function fillRect(a,b,c,d){
+	ctx.fillRect(a*scale,b*scale,c*scale,d*scale);
+}
+function generate(a,b){
+	var result=0;
+	if(Math.random()<0.03){
+		result=1;
+	}
+	if(calc(a-1,b)==1&Math.random()<0.7){
+		result=1;
+	}
+	if(calc(a,b-1)==1&Math.random()<0.4){
+		result=1;
+	}
+	if(calc(a,b-1)==1&calc(a-1,b-1)==1){
+		result=calc(a-1,b);
+	}
+	if(result==0&Math.random()<0.003){
+		result=2;
+	}
+	if(result==0&Math.random()<0.01){
+		result=3;
+	}
+	return result;
+}
+function calc(a,b){
+	if(a<0||b<0){return 0;}
+	return stored[a%(asapx+3)][b];
+}
+function hitdec(){
+    return register(1);
+}
+function clear(){
+	for(i=Math.floor((x-hahmoz)/pix)-1;i<Math.floor((x+hahmoz)/pix)+2;i++){
+    		for(j=Math.floor((y-hahmoz)/pix)-1;j<Math.floor((y+hahmoz)/pix)+1;j++){
+    			stored[i%(asapx+3)][j]=0;
+			stored[i%(asapx+3)][j+2]=1;
+   		}
+	}
+}
+function register(a){
+    for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
+    	for(j=Math.floor((y-hahmoz)/pix);j<Math.floor((y+hahmoz)/pix)+1;j++){
+    		if(calc(i,j)==a){
+            	return true;
+            }
+   		}
+    }
+    return false;
+}
+function draw(){
+    ctx.clearRect(0,0,canvasElement.width,canvasElement.height);
+    for(i=Math.floor(camera/pix)-1;i<Math.floor((camera+canvasElement.width/scale)/pix)+1;i++){
+    	for(j=0;j<asapy;j++){
+		var calced=calc(i,j)
+    		if(calced>0){
+			ctx.fillStyle=col[calced-1];
+            		fillRect(i*pix-off-camera,j*pix-off,pix+off*2,pix+off*2);	
+            	}
+   	}
+    }
+    ctx.fillStyle="red";
+    fillRect(x-camera-hahmoz,y-hahmoz,hahmoz*2,hahmoz*2);
+    ctx.font="25px Arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Score: "+Math.round(camera/30+extrapoints),0,20);
+    ctx.fillText("High:   "+highscore,0,45);
+}
+function loop(){
+	if(keys[0]){
+		y+=10;
+		if(hitdec()&moy>=0){
+			moy=jump-Math.abs(mox)*1.5;
+			jumping=true;
+		}
+		y-=10;
+	}
+	else{jumping=false;}
+	moy+=grav*(1+(moy<0&!jumping)*1.2);
+	//y+=moy/10/(1+(moy<0&!jumping)*2);
+	y+=moy/10;
+	var onground=false;
+	if(hitdec()){
+		y-=moy/10;
+		if(moy>0){
+			y=Math.floor((y+moy/10+hahmoz)/pix)*pix-hahmoz-0.01;
+			onground=true;
+		}
+		moy=0;
+	}
+	if(keys[1]){
+		mox=Math.min((mox*12.5-1)/12.5,-0.16);
+	}
+	if(keys[2]){
+		mox=Math.max((mox*12.5+1)/12.5,0.16);
+	}
+	if(moy>40){
+		moy=40;
+	}
+	x+=mox
+	if(hitdec()){
+		x-=mox
+		mox=0;
+	}
+	var friction=0.1;
+	if(onground){friction=0.25;}
+	if(mox<0&!keys[1]){mox+=friction;}
+	if(mox>0&!keys[2]){mox-=friction;}
+	if(mox<=friction&mox>=-friction&!keys[1]&!keys[2]){mox=0;}
+	if(mox>2.5){
+		mox=2.5;
+	}
+	if(mox<-2.5){
+		mox=-2.5;
+	}
+	draw();
+    var oldcamera=camera;
+    //camera+=(x-250-camera)/100;
+    camera+=0.17;
+    if(camera<0){camera=0;}
+    if(Math.floor((camera+canvasElement.width/scale)/pix)!=Math.floor((oldcamera+canvasElement.width/scale)/pix)){
+	for(j=0;j<asapy;j++){
+		stored[(Math.floor((camera+canvasElement.width/scale)/pix)+1)%(asapx+3)][j]=generate(Math.floor((camera+canvasElement.width/scale)/pix)+1,j);
+	}
+    }
+    for(i=Math.floor((x-hahmoz)/pix);i<Math.floor((x+hahmoz)/pix)+1;i++){
+    	for(j=Math.floor((y-hahmoz)/pix);j<Math.floor((y+hahmoz)/pix)+1;j++){
+    		if(calc(i,j)==3){
+			stored[i%(asapx+3)][j]=0;
+			extrapoints+=5;
+		}
+   	}
+    }
+    if(Math.round(camera/30+extrapoints)>highscore){
+	highscore=Math.round(camera/30+extrapoints);
+    }
+    if(y-hahmoz-2<0||y+hahmoz+2>500||x<camera||x>camera+canvasElement.width/scale||register(2)){
+    	lose(0);
+    }
+    else{
+    	setTimeout("loop()",10);
+    }
+}
+loop();
+function lose(a){
+	ctx.fillStyle="rgba(0,0,0,0.1)";
+	if(a<50){
+		fillRect(0,0,canvasElement.width/scale+10,500);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else if(a==50){
+		camera=0;
+		extrapoints=0;
+        	x=250;
+        	y=270;
+		mox=0;
+		moy=0;
+		setTimeout("lose("+(a+1)+")",10);
+                for(i=0;i<asapx+3;i++){
+			for(j=0;j<asapy;j++){
+				stored[i][j]=generate(i,j);
+			}
+		}
+		clear();
+	}
+	else if(a>50&a<75){
+		draw();
+		ctx.fillStyle="black";
+		fillRect(0,0,canvasElement.width/scale+10,1500-a*20);
+		setTimeout("lose("+(a+1)+")",10);
+	}
+	else{
+		loop();
+	}
+}
+document.addEventListener("keydown",move);
+document.addEventListener("keyup",mover);
+function move(event){
+	if(event.keyCode==32){keys[0]=true;}
+	if(event.keyCode==37){keys[1]=true;}
+	if(event.keyCode==39){keys[2]=true;}
+}
+function mover(event){
+	if(event.keyCode==32){keys[0]=false;}
+	if(event.keyCode==37){keys[1]=false;}
+	if(event.keyCode==39){keys[2]=false;}
+}
+</script>
+</body>
+</html>
