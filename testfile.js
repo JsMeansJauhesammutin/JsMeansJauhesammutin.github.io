@@ -1,0 +1,1 @@
+console.log(WIKIREQUEST.info.domain);
