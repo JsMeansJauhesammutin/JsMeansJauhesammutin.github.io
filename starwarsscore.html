@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {background-color: black;}
+</style>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+var ctx = canvasElement.getContext("2d");
+var cellSize=2;
+var boardWidth=Math.floor((window.innerWidth-20)/cellSize);
+var boardHeight=Math.floor((window.innerHeight-40)/cellSize);
+canvasElement.width=boardWidth*cellSize;
+canvasElement.height=window.innerHeight-20;
+var imageData=ctx.createImageData(canvasElement.width,canvasElement.height);
+var buffer=new Uint32Array(imageData.data.buffer);
+var colors=new Array(0xFF000000,0xFFFFFFFF,0xFFBBBBBB,0xFF999999,0xFFFF3333,0xFFBB3333,0xFF993333,0xFF3333FF,0xFF3333BB,0xFF333399);
+var board=new Array(boardWidth);
+var nextboard=new Array(boardWidth);
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight);
+	nextboard[i]=new Array(boardHeight);
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=0;
+    		if(i>0.2*boardWidth&i<0.3*boardWidth&j>0.25*boardHeight&boardHeight-j>0.25*boardHeight){
+			board[i][j]=Math.floor(Math.random()*2)*4;
+		}
+		if(boardWidth-i>0.2*boardWidth&boardWidth-i<0.3*boardWidth&j>0.25*boardHeight&boardHeight-j>0.25*boardHeight){
+			board[i][j]=Math.floor(Math.random()*2)*7;
+		}
+	}
+}
+function draw(){
+	var index=0;
+	for(j=0;j<boardHeight;j++){
+		for(y=0;y<cellSize;y++){
+			for(i=0;i<boardWidth;i++){
+				for(x=0;x<cellSize;x++){
+					buffer[index]=colors[board[i][j]];
+					index++;
+				}
+			}
+		}
+	}
+        ctx.putImageData(imageData,0,0);
+	/*for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			ctx.fillStyle="black";
+			if(board[i][j]!=0){ctx.fillStyle="white"}
+			ctx.fillRect(i,j,1,1);
+		}
+	}*/
+}
+function bound(a,b){
+	return board[(a+boardWidth)%boardWidth][(b+boardHeight)%boardHeight];
+}
+function value(a,b){
+	if(bound(a,b)%3==1){return 1;}
+	return 0;
+}
+function faction(a,b){
+	if(bound(a,b)<4||value(a,b)==0){return 0;}
+	if(bound(a,b)>6){return 1;}
+	return -1;
+}
+function loop(){
+	draw();
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			var alive=value(i-1,j-1)+value(i+1,j-1)+value(i-1,j+1)+value(i+1,j+1)+value(i-1,j)+value(i+1,j)+value(i,j-1)+value(i,j+1);
+			nextboard[i][j]=board[i][j]+1;
+			if(nextboard[i][j]%3==1){nextboard[i][j]=0;}
+			if((board[i][j]==0&alive==2)||(board[i][j]%3==1&(alive==3||alive==4||alive==5))){
+				var majority=faction(i-1,j-1)+faction(i+1,j-1)+faction(i-1,j+1)+faction(i+1,j+1)+faction(i-1,j)+faction(i+1,j)+faction(i,j-1)+faction(i,j+1);
+				nextboard[i][j]=1;
+				if(majority<0){nextboard[i][j]=4;}
+				if(majority>0){nextboard[i][j]=7;}
+			}
+		}
+	}
+	var count=0;
+	var winning=0;
+	for(i=0;i<boardWidth;i++){
+		for(j=0;j<boardHeight;j++){
+			board[i][j]=nextboard[i][j];
+			count+=value(i,j);
+			winning+=faction(i,j);
+		}
+	}
+	//console.log(winning/count/2+0.5);
+	ctx.fillStyle="blue";
+	ctx.fillRect(0,canvasElement.height-15,canvasElement.width,15);
+	ctx.fillStyle="red";
+	ctx.fillRect(0,canvasElement.height-15,(winning/count/2+0.5)*canvasElement.width,15);
+	setTimeout("loop()",10);
+}
+loop();
+</script>
+</body>
+</html>
