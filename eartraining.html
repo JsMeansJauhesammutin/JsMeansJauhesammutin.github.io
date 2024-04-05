@@ -1,0 +1,201 @@
+<canvas id="canvasID" width="700" height="300"></canvas>
+<p id="sliderandtext"><tt>Volume: </tt><input id="slider" type="range" min="1" max="100" value="40" class="slider"></p>
+<h1 id="correct">Click the grey area to start!</h1>
+<script text="text/javascript">
+var canvasElement=document.getElementById("canvasID");
+var ctx=canvasElement.getContext("2d");
+ctx.font = '20px Courier New';
+var keyboardMode=true;
+var mouseDown=false;
+var pressedKeys=new Array(8);
+var lastKey=-1;
+var tileAmount=8;
+var tileWidtht;
+var colors=new Array("#FF6663","#FEB144","#F8F1AE","#C1E1C1","#98DEDE","#9EC1CF","#CC99C9","#FF6663");
+var names=new Array("do","re","mi","fa","so","la","ti","do");
+var frequencies=new Array(262,293,329,349,392,440,493,523);
+var stages=new Array(1,3,2,4,1,6,7,5);
+var oscillator;
+var gain;
+var actx;
+var sounds=new Array(15);
+var disabled=true;
+var ambientcolor="grey";
+function start(frequency){
+    if(oscillator){
+     for(i=0;i<sounds.length-1;i++){
+     sounds[i]=sounds[i+1];
+     }
+     sounds[sounds.length-1]=actx;
+     if(sounds[0]){
+     sounds[0].close();
+     }
+    }
+    actx=new AudioContext();
+    oscillator=actx.createOscillator();
+    oscillator.frequency.value=frequency;
+    gain=actx.createGain();
+    oscillator.connect(gain);
+    gain.connect(actx.destination);
+    oscillator.type="sine";
+    oscillator.start(0);
+    gain.gain.setValueAtTime(document.getElementById("slider").value/100, actx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.000001, actx.currentTime + 3);
+}
+function starto(frequency){
+	if(disabled||stages[frequencies.indexOf(frequency)]>step){return;}
+	user.push(frequency);
+	start(frequency);
+}
+function draw(){
+    var windowWidth = window.innerWidth||document.documentElement.clientWidth|| document.body.clientWidth;
+    if(windowWidth>700){
+     tileWidth=700/tileAmount;
+    }
+    if(windowWidth<700){
+     tileWidth=windowWidth/tileAmount;
+    }
+    for(i=0;i<tileAmount;i++){
+     ctx.fillStyle=(disabled||stages[i]>step?ambientcolor:colors[i]);
+     ctx.fillRect(Math.floor(i*tileWidth),0,tileWidth+1,300);
+     var textWidth=ctx.measureText(names[i]).width;
+     ctx.fillStyle="black";
+     ctx.fillText(names[i],(i+0.5)*tileWidth-textWidth/2,280);
+    }
+    var volume=document.getElementById("slider").value;
+}
+document.addEventListener("mousedown",mousedown);
+document.addEventListener("mousemove",mousemove);
+document.addEventListener("mouseup",mouseup);
+document.addEventListener("keydown",keydown);
+document.addEventListener("keyup",keyup);
+function mousedown(e){if(keyboardMode){
+    mouseDown=true;
+    if(e.y<300){
+     lastKey=Math.floor((e.x-5)/tileWidth);
+     if(lastKey>-1&lastKey<tileAmount){starto(frequencies[lastKey]);}
+    }
+    if(initial){
+	initial=false;
+	document.getElementById("correct").innerHTML="Correct: "+right+"/10";
+	dumbloop();
+    }
+}}
+function mousemove(e){if(keyboardMode){
+    if(mouseDown){
+     if(e.y<300&e.y>-1){
+     if(lastKey!=Math.floor((e.x-5)/tileWidth)){
+     lastKey=Math.floor((e.x-5)/tileWidth);
+     if(lastKey>-1&lastKey<tileAmount){starto(frequencies[lastKey]);}
+     }
+     }
+     else{
+     lastKey=-1;
+     }
+    }
+}}
+function mouseup(e){if(keyboardMode){
+    mouseDown=false;
+}}
+function keydown(e){if(keyboardMode){
+    if(e.keyCode>48&e.keyCode<57){
+     if(!pressedKeys[e.keyCode-49]){starto(frequencies[e.keyCode-49]);}
+     pressedKeys[e.keyCode-49]=true;
+    }
+}}
+function keyup(e){if(keyboardMode){
+    if(e.keyCode>48&e.keyCode<57){pressedKeys[e.keyCode-49]=false;}
+}}
+draw();
+var level=1;
+var step=1;
+var half=false;
+var right=0;
+var counter=0;
+var freqs=[];
+var user=[];
+var initial=true;
+var wait=100;
+function dumbloop(){
+	if(counter==0){
+		start(frequencies[0]);
+		start(frequencies[2]);
+		start(frequencies[4]);
+		ambientcolor="grey";
+	}
+	else if(counter%wait==0){
+		if(counter==level*wait&half){
+			start(frequencies[0]);
+			start(frequencies[2]);
+			start(frequencies[4]);
+		}	
+		else{
+			var choices=0;
+			for(i=0;i<stages.length;i++){
+				if(stages[i]<=step){
+					choices++;
+				}
+			}
+			var j=0;
+			var choice=Math.floor(Math.random()*choices);
+			for(i=0;i<stages.length;i++){
+				if(stages[i]<=step){
+					if(choice==j){
+						var note=frequencies[i];
+					}
+					j++;
+				}
+			}
+			if(Math.random()<0.25&step>1&level==1){
+				for(i=0;i<stages.length;i++){
+					if(stages[i]==step){
+						note=frequencies[i];
+					}	
+				}
+			}
+			start(note);
+			freqs.push(note);
+		}
+	}
+	if(counter<1+level*wait+(half?wait:0)){
+		counter++;
+	}
+	else{
+		disabled=false;
+		var failed=false;
+	}
+	if(freqs.length==user.length&!disabled){
+		for(i=freqs.length-1;i>=0;i--){
+			if(freqs[i]!=user[i]){
+				failed=true;
+			}
+			freqs.pop();
+			user.pop();
+		}
+		if(failed){
+			right=0;
+			ambientcolor="red";
+		}
+		else{
+			right++;
+			if(right==8+step*2){
+				right=0;
+				if(step<7){
+					step++;
+				}
+				else{
+					half=!half;
+					if(half){level++;}
+				}
+			}
+			ambientcolor="lightgreen";
+		}
+		counter=Math.floor(-wait+1);
+		disabled=true;
+	}
+	draw();
+	document.getElementById("correct").innerHTML="Correct: "+right+"/"+(8+step*2)+" <br>Level: "+(level+step-1)+(half?" (Practice)":"  (Normal)");
+	setTimeout(dumbloop,10);
+}
+//setInterval(draw(),1);
+</script>
