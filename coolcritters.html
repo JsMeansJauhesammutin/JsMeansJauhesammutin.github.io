@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {background-color: black;}
+</style>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+var canvasElement=document.getElementById("CanvasId");
+var ctx = canvasElement.getContext("2d");
+var cellSize=2;
+var boardWidth=Math.floor((window.innerWidth-20)/cellSize/2)*2;
+var boardHeight=Math.floor((window.innerHeight-20)/cellSize/2)*2;
+canvasElement.width=boardWidth*cellSize;
+canvasElement.height=boardHeight*cellSize;
+var imageData=ctx.createImageData(canvasElement.width,canvasElement.height);
+var buffer=new Uint32Array(imageData.data.buffer);
+var colors=new Array(0xFF000000,0xFFFFFFFF);
+var board=new Array(boardWidth);
+var nextboard=new Array(boardWidth);
+var mode=0;
+var holder=0;
+var speed=100;
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight);
+	nextboard[i]=new Array(boardHeight);
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=0;
+    		if(i>0.2*boardWidth&i<0.3*boardWidth&j>0.25*boardHeight&boardHeight-j>0.25*boardHeight){
+			board[i][j]=Math.floor(Math.random()*2)*0;
+		}
+		if(boardWidth-i>0.2*boardWidth&boardWidth-i<0.3*boardWidth&j>0.25*boardHeight&boardHeight-j>0.25*boardHeight){
+			board[i][j]=Math.floor(Math.random()*2);
+		}
+	}
+}
+function draw(){
+	var index=0;
+	for(j=0;j<boardHeight;j++){
+		for(y=0;y<cellSize;y++){
+			for(i=0;i<boardWidth;i++){
+				for(x=0;x<cellSize;x++){
+					buffer[index]=colors[board[i][j]];
+					index++;
+				}
+			}
+		}
+	}
+        ctx.putImageData(imageData,0,0);
+}
+function loop(){
+	for(k=0;k<speed;k++){
+		for(i=mode;i<boardWidth-1;i+=2){
+			for(j=mode;j<boardHeight-1;j+=2){
+				var alive=board[i][j]+board[i+1][j]+board[i][j+1]+board[i+1][j+1];
+				if(alive+2*mode==3){
+					holder=board[i][j];
+					board[i][j]=board[i+1][j+1]
+					board[i+1][j+1]=holder;
+					holder=board[i+1][j];
+					board[i+1][j]=board[i][j+1]
+					board[i][j+1]=holder;
+				}
+				if(alive==2){
+					board[i][j]=1-board[i][j];
+					board[i+1][j]=1-board[i+1][j];
+					board[i][j+1]=1-board[i][j+1];
+					board[i+1][j+1]=1-board[i+1][j+1];
+				}
+			}
+		}
+		mode=1-mode;
+	}
+	draw();
+	setTimeout("loop()",10);
+}
+draw();
+setTimeout("loop()",10);
+</script>
+</body>
+</html>
