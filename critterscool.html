@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {background-color: black;}
+</style>
+<body>
+<canvas id="CanvasId" width="500" height="500"></canvas>
+<script text="text/javascript">
+// Space: Pause
+// Enter (while paused): Do one iteration
+// Shift: Change the direction of time
+// Left arrow: Decrease simulation speed
+// Right arrow: Increase simulation speed
+var canvasElement=document.getElementById("CanvasId");
+var ctx = canvasElement.getContext("2d");
+var cellSize=2;
+var boardWidth=Math.floor((window.innerWidth-20)/cellSize/2)*2;
+var boardHeight=Math.floor((window.innerHeight-20)/cellSize/2)*2;
+canvasElement.width=boardWidth*cellSize;
+canvasElement.height=boardHeight*cellSize;
+var imageData=ctx.createImageData(canvasElement.width,canvasElement.height);
+var buffer=new Uint32Array(imageData.data.buffer);
+var colors=new Array(0xFF000000,0xFFFFFFFF);
+var board=new Array(boardWidth);
+var nextboard=new Array(boardWidth);
+var iterationparity=0;
+var iterationsperframe=1;
+var placeholder=0;
+var paused=false;
+for(i=0;i<boardWidth;i++){
+	board[i]=new Array(boardHeight);
+	nextboard[i]=new Array(boardHeight);
+	for(j=0;j<boardHeight;j++){
+		board[i][j]=0;
+	}
+}
+for(i=0;i<30;i++){
+	for(j=5;j+4<boardHeight;j+=6){
+		if(Math.random()<0.5&j+6<boardHeight){j+=2;}
+		board[i*4+2][j]=1;
+		board[i*4][j+1]=1;
+		board[i*4][j+2]=1;
+		board[i*4+2][j+3]=1;
+	}
+}
+function draw(){
+	var index=0;
+	for(j=0;j<boardHeight;j++){
+		for(y=0;y<cellSize;y++){
+			for(i=0;i<boardWidth;i++){
+				for(x=0;x<cellSize;x++){
+					buffer[index]=colors[board[i][j]];
+					index++;
+				}
+			}
+		}
+	}
+        ctx.putImageData(imageData,0,0);
+}
+function iterate(){
+	for(i=iterationparity;i+1<boardWidth;i+=2){
+		for(j=iterationparity;j+1<boardHeight;j+=2){
+			var alive=board[i][j]+board[i+1][j]+board[i][j+1]+board[i+1][j+1];
+			if(alive==2){
+				board[i][j]=1-board[i][j];					
+				board[i+1][j]=1-board[i+1][j];
+				board[i][j+1]=1-board[i][j+1];
+				board[i+1][j+1]=1-board[i+1][j+1];
+			}
+			if(alive+iterationparity+iterationparity==3){
+				placeholder=board[i][j];
+				board[i][j]=board[i+1][j+1]
+				board[i+1][j+1]=placeholder;
+				placeholder=board[i+1][j];
+				board[i+1][j]=board[i][j+1]
+				board[i][j+1]=placeholder;
+			}
+		}
+	}
+	iterationparity=1-iterationparity;
+}
+function loop(){
+	draw();
+	if(!paused){
+		for(k=0;k<iterationsperframe;k++){
+			iterate();
+		}
+	}
+	setTimeout("loop()",10);
+}
+loop();
+document.addEventListener("keydown", controls);
+function controls(e){
+	if(paused&e.keyCode==13){
+		iterate();
+	}
+	if(e.keyCode==16){
+		iterationparity=1-iterationparity;
+	}
+	if(e.keyCode==32){
+		paused=!paused;
+	}
+	if(e.keyCode==37){
+		iterationsperframe=Math.max(iterationsperframe-1,1);
+	}
+	if(e.keyCode==39){
+		iterationsperframe=Math.min(iterationsperframe+1,100);
+	}
+}
+</script>
+</body>
+</html>
