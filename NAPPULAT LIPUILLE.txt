@@ -1,0 +1,19 @@
+NAPPULAT LIPUILLE
+
+Kuvaus: 
+Tavoitteena on saada nappulat lipun päälle. Onnistuu yhdistelemällä ja erottelemalla nappuloita x-näppäimellä. Pelaajan tulee varoa sateenkaariruutujen välähdyksiä.
+
+Säännöt ja toiminnot:
+- Pelissä monta tasoa, opettaa mekaniikat vähitellen
+- Jos tasossa ei ole lippua, pelaaja aloittaa asettamalla lipun
+- Sateenkaariruudut välillä välähtelevät, pelaaja voi kuolla ja joutua aloittamaan alusta
+- Pelaajan täytyy laittaa lippu oikeaan kohtaan, muuten taso mahdoton (ryhmäteoria, invariantti)
+
+Tasoja:
+- Tosi yksinkertaisia
+- Ajoitushaaste
+- Lippu oikeaan kohtaan
+- Nappuloiden siirto
+
+Voittoehto:
+Kaikki nappulat ovat lipun päällä
