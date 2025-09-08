@@ -15,8 +15,9 @@ Tasoja:
 - Lippu oikeaan kohtaan
 - Nappuloiden siirto
 
-Teema:
-Pelistä voisi tehdä vähemmän abstraktin valitsemalla jollain tavalla tosimaailmaan pohjautuvan teeman.
+Jatkokehitys:
+Vaiheittain etenevä objekti tai animaatio + Reaaliaikaisia (pelaajan liikkeestä riippumattomia) tapahtumia (Sateenkaariruudut)
+Hieman haastava (ei ilmiselvä) pulma (puzzle) pitää ratkaista pelin läpäisemiseksi (viimeinen kenttä)
 
 Voittoehto:
 Kaikki nappulat ovat lipun päällä
