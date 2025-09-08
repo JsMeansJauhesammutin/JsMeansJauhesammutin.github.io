@@ -1,0 +1,34 @@
+<textarea id="level"></textarea>
+<pre><h3 id="output">output goes here</h3></pre>
+<button onclick="decorate()">decorate</button>
+<button onclick="simplify()">simplify</button>
+<script>
+var text;
+var width;
+var height;
+function get(x,y){
+	if(x<0||y<0){return "#";}
+	return text[(y*(width+1))+x];
+}
+function normalize(){
+	return document.getElementById("level").value.replaceAll("+","#").replaceAll("-","#").replaceAll("'","#").replaceAll("l","#");
+}
+function simplify(output){
+	document.getElementById("output").innerHTML=normalize();	
+}
+function decorate(){
+	text=normalize();
+	width=text.split("\n")[0].length;
+	height=(text.length+1)/(width+1);
+	var result="";
+	for(j=0;j<height;j++){
+		for(i=0;i<width+1;i++){
+			if(get(i,j)=="#") {
+				result+=["+","l","-",get(i-1,j-1)=="#"?"#":"'"][2*(get(i-1,j)=="#")+(get(i,j-1)=="#")];
+			}
+			else {result+=get(i,j);}
+		}	
+	}
+	document.getElementById("output").innerHTML=result.replace("undefined","");
+}
+</script>
