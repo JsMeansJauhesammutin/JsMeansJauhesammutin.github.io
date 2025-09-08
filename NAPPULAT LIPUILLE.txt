@@ -15,5 +15,8 @@ Tasoja:
 - Lippu oikeaan kohtaan
 - Nappuloiden siirto
 
+Teema:
+Pelistä voisi tehdä vähemmän abstraktin valitsemalla jollain tavalla tosimaailmaan pohjautuvan teeman.
+
 Voittoehto:
 Kaikki nappulat ovat lipun päällä
